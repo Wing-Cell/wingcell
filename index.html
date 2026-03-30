@@ -1763,20 +1763,21 @@ function rTbl(){
       ?'<div class="si"><div class="sdot out"></div><span style="color:var(--t3)">'+emFalta+' em falta</span></div>'
       :"";
     var totTxt='<div class="si"><i class="fa-solid fa-box" style="color:var(--t3)"></i>&nbsp;'+list.length+' exibidos</div>';
+    var eyeIcon=window._showFalta
+      ?'<i class="fa-solid fa-eye-slash"></i>'
+      :'<i class="fa-solid fa-eye"></i>';
+    var eyeLabel=window._showFalta
+      ?"Ocultar indisponíveis"
+      :"Ver em falta ("+emFalta+")";
+    var eyeStyle="margin-left:auto;padding:4px 11px;border-radius:20px;border:1.5px solid "
+      +(window._showFalta?"var(--amb)":"var(--b)")
+      +";background:"+(window._showFalta?"var(--ambs)":"transparent")
+      +";color:"+(window._showFalta?"var(--amb)":"var(--t3)")
+      +";font-size:.7rem;font-weight:700;cursor:pointer;font-family:Barlow;white-space:nowrap;display:flex;align-items:center;gap:5px;transition:all .2s";
     var showBtn=emFalta>0
-      ?'<button onclick="togShowFalta()" style="margin-left:auto;padding:3px 10px;border-radius:20px;border:1.5px solid '+
-        (window._showFalta?"var(--amb)":"var(--b2)")+
-        ';background:'+
-        (window._showFalta?"var(--ambs)":"transparent")+
-        ';color:'+
-        (window._showFalta?"var(--amb)":"var(--t3)")+
-        ';font-size:.69rem;font-weight:700;cursor:pointer;font-family:Barlow;white-space:nowrap">'+
-        (window._showFalta
-          ?'<i class="fa-solid fa-eye-slash"></i> Ocultar em falta'
-          :'<i class="fa-solid fa-eye"></i> Ver em falta ('+emFalta+")"
-        )+'</button>'
+      ?'<button onclick="togShowFalta()" style="'+eyeStyle+'">'+eyeIcon+" "+eyeLabel+"</button>"
       :"";
-    sb.innerHTML=dispTxt+faltaTxt+totTxt+showBtn;
+    sb.innerHTML=dispTxt+totTxt+showBtn;
   }
 }
 
@@ -2556,45 +2557,49 @@ function togDisp(id){
 }
 function upImg(e,id){
   var file=e.target.files[0];if(!file)return;
-  
-  // Reset input so same file can be selected again
   e.target.value="";
   
-  toast("Processando foto...","info");
+  var cfg=window.CLD;
+  if(!cfg||cfg.cloudName==="SEU_CLOUD_NAME"){
+    toast("Cloudinary nao configurado.","err");return;
+  }
   
-  // Compress image before upload (max 800px, quality 0.85)
-  compressImg(file,800,0.85,function(blob,localUrl){
-    var cfg=window.CLD;
-    
-    // Show preview immediately (local URL)
+  toast("Enviando foto...","info");
+  
+  // Compress then upload directly to Cloudinary
+  compressImg(file,900,0.88,function(blob,localUrl){
+    // Show preview immediately while uploading
     var i=PRODS.findIndex(function(p){return p.id===id;});
     if(i>=0){PRODS[i].imagemUrl=localUrl;}
-    rCatAdm();rTbl();rCat();
+    rCatAdm();
     
-    if(!cfg||cfg.cloudName==="SEU_CLOUD_NAME"){
-      toast("Foto atualizada (local).","ok");return;
-    }
-    
-    // Upload compressed to Cloudinary
     var fd=new FormData();
     fd.append("file",blob,"foto.jpg");
     fd.append("upload_preset",cfg.uploadPreset);
     
     fetch("https://api.cloudinary.com/v1_1/"+cfg.cloudName+"/image/upload",{method:"POST",body:fd})
-      .then(function(r){return r.json();})
+      .then(function(r){
+        if(!r.ok)throw new Error("HTTP "+r.status);
+        return r.json();
+      })
       .then(function(data){
-        if(!data.secure_url)throw new Error("Upload failed");
+        if(!data.secure_url)throw new Error(data.error?data.error.message:"Upload falhou");
         var url=data.secure_url;
-        var idx=PRODS.findIndex(function(p){return p.id===id;});
-        if(idx>=0)PRODS[idx].imagemUrl=url;
+        var idx2=PRODS.findIndex(function(p){return p.id===id;});
+        if(idx2>=0)PRODS[idx2].imagemUrl=url;
         if(window.FB&&window.FB.FB_OK){
           window.FB.updateDoc(window.FB.doc(window.FB.db,"produtos",id),{imagemUrl:url}).catch(function(){});
         }
         rCatAdm();rTbl();rCat();
-        toast("Foto enviada!","ok");
-      }).catch(function(){
-        // Keep local URL as fallback
-        toast("Foto salva localmente (sem internet).","info");
+        toast("Foto enviada com sucesso!","ok");
+      })
+      .catch(function(err){
+        // Revert preview on error
+        var idx3=PRODS.findIndex(function(p){return p.id===id;});
+        if(idx3>=0&&PRODS[idx3].imagemUrl===localUrl)PRODS[idx3].imagemUrl="";
+        rCatAdm();
+        toast("Erro ao enviar foto: "+err.message,"err");
+        console.error("Upload error:",err);
       });
   });
 }
