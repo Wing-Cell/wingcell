@@ -387,23 +387,6 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
   </div>
   <div class="lbox">
     <div class="llogo">
-      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="100" cy="100" r="88" fill="none" stroke="#e81c1c" stroke-width="11"/>
-  <!-- Asa fiel ao logo WingCell original -->
-  <!-- Pena 1: grande, curvada para cima-direita -->
-  <path d="M 72 152 C 62 125 68 92 92 68 C 95 92 90 122 84 145 Z" fill="#e81c1c"/>
-  <!-- Pena 2 -->
-  <path d="M 84 145 C 80 118 88 86 112 64 C 114 88 108 118 101 140 Z" fill="#e81c1c"/>
-  <!-- Pena 3 -->
-  <path d="M 101 140 C 99 113 109 82 131 62 C 132 86 124 114 117 134 Z" fill="#e81c1c"/>
-  <!-- Pena 4 -->
-  <path d="M 117 134 C 117 107 128 76 148 58 C 148 82 139 108 131 128 Z" fill="#e81c1c"/>
-  <!-- Pena 5: mais alta, ponta fina -->
-  <path d="M 131 128 C 133 103 143 74 160 58 C 159 80 151 104 143 122 Z" fill="#e81c1c"/>
-  <!-- Quill/raque central conectando as penas -->
-  <path d="M 72 152 C 84 144 96 140 108 136 C 120 132 132 127 144 120 C 156 113 162 107 162 107
-           C 150 114 138 121 125 126 C 112 131 99 136 86 141 Z" fill="#e81c1c"/>
-</svg>
       <span class="lnm">WINGCELL</span>
       <span class="lsb">Sua distribuidora de peças na palma da mão</span>
     </div>
@@ -427,6 +410,11 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
       </div>
       <div id="fa" style="display:none">
         <div class="adm-info"><i class="fa-solid fa-shield-halved" style="color:var(--red);margin-right:5px"></i>Área restrita. Entre com suas credenciais de administrador.</div>
+        <div id="domain-warn" style="display:none;padding:9px 12px;background:var(--ambs);border:1px solid rgba(217,119,6,.3);border-radius:7px;font-size:.77rem;color:var(--amb);margin-bottom:12px;line-height:1.6">
+          <i class="fa-solid fa-triangle-exclamation"></i> <strong>Domínio não autorizado.</strong><br>
+          Acesse: <strong>Firebase Console → Authentication → Configurações → Domínios autorizados</strong><br>
+          Adicione: <code id="current-domain" style="background:rgba(255,255,255,.1);padding:1px 5px;border-radius:3px"></code>
+        </div>
         <label class="fl">E-mail</label>
         <input class="fi lo" type="email" id="iae" placeholder="admin\u0040wingcell.com.br" onkeydown="if(event.key==='Enter')doALg()">
         <label class="fl">Senha</label>
@@ -739,16 +727,23 @@ function rstSess(){
 
 // ── THEME ─────────────────────────────────────────────────
 function togTh(){
-  var n=document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark";
+  var cur=document.documentElement.getAttribute("data-theme");
+  var n=cur==="dark"?"light":"dark";
   document.documentElement.setAttribute("data-theme",n);
-  var tb=document.getElementById("thbtn");
-  if(tb)tb.innerHTML=n==="dark"?'<i class="fa-solid fa-moon"></i>':'<i class="fa-solid fa-sun"></i>';
   localStorage.setItem("wc_theme",n);
-  var ico=document.getElementById("lgthico");
-  var lbl=document.getElementById("lgthtxt");
-  if(ico)ico.className=n==="dark"?"fa-solid fa-moon":"fa-solid fa-sun";
-  if(lbl)lbl.textContent=n==="dark"?"Modo Escuro":"Modo Claro";
+  updateThemeUI(n);
 }
+function updateThemeUI(t){
+  var tb=document.getElementById("thbtn");
+  if(tb)tb.innerHTML=t==="dark"?'<i class="fa-solid fa-moon"></i>':' <i class="fa-solid fa-sun"></i>';
+  var ico=document.getElementById("lgthico");
+  if(ico)ico.className=t==="dark"?"fa-solid fa-moon":"fa-solid fa-sun";
+  var lbl=document.getElementById("lgthtxt");
+  if(lbl)lbl.textContent=t==="dark"?"Modo Escuro":"Modo Claro";
+  var lgthbtn=document.getElementById("lgthbtn");
+  if(lgthbtn)lgthbtn.innerHTML='<i class="fa-solid '+(t==="dark"?"fa-moon":"fa-sun")+'" id="lgthico"></i><span id="lgthtxt">'+(t==="dark"?"Modo Escuro":"Modo Claro")+"</span>";
+}
+
 (function(){
   var t=localStorage.getItem("wc_theme")||(window.matchMedia("(prefers-color-scheme:light)").matches?"light":"dark");
   document.documentElement.setAttribute("data-theme",t);
@@ -873,6 +868,7 @@ function doALg(){
     btn.innerHTML='<i class="fa-solid fa-shield-halved"></i> Entrar como Admin';
   }
   if(window.FB&&window.FB.FB_OK){
+    // Check if domain is authorized first
     window.FB.signInWithEmailAndPassword(window.FB.auth,em,pw)
       .then(function(cr){
         return window.FB.getDoc(window.FB.doc(window.FB.db,"admins",cr.user.uid))
@@ -885,7 +881,12 @@ function doALg(){
             afterLg();
           });
       })
-      .catch(function(){fail("Credenciais inválidas.");});
+      .catch(function(e){
+        if(e.code==="auth/unauthorized-domain")fail("Domínio não autorizado no Firebase. Veja instruções abaixo.");
+        else if(e.code==="auth/wrong-password"||e.code==="auth/invalid-credential")fail("Senha incorreta.");
+        else if(e.code==="auth/user-not-found")fail("E-mail não cadastrado.");
+        else fail("Credenciais inválidas. ("+( e.code||"erro")+ ")");
+      });
   }else{
     if(em==="admin\u0040demo.com"&&pw==="admin123"){
       meAdm={uid:"demo",nome:"Admin Demo",email:em,role:"superadmin"};
