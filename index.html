@@ -286,6 +286,35 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
 .loja-link:hover{border-color:#25d366;background:rgba(37,211,102,.07)}
 .loja-link-ic{width:36px;height:36px;border-radius:8px;background:rgba(37,211,102,.12);color:#25d366;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
 
+/* ── NOVIDADES BANNER ── */
+.novidades-bar{background:linear-gradient(90deg,#1a0000,var(--red),#1a0000);border-bottom:1px solid rgba(232,28,28,.3);overflow:hidden;position:relative;height:36px;display:flex;align-items:center}
+.novidades-track{display:flex;align-items:center;gap:0;white-space:nowrap;animation:ticker 28s linear infinite;will-change:transform}
+.novidades-bar:hover .novidades-track{animation-play-state:paused}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.novidades-item{display:inline-flex;align-items:center;gap:8px;padding:0 28px;font-size:.78rem;font-weight:600;color:#fff;letter-spacing:.02em}
+.novidades-item i{color:rgba(255,255,255,.7);font-size:.7rem}
+.novidades-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.4);flex-shrink:0}
+.novidades-lbl{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:3px;padding:1px 5px;font-size:.62rem;font-weight:800;letter-spacing:.08em;color:#fff;text-transform:uppercase;flex-shrink:0}
+
+/* ── COTAÇÃO EM FALTA ── */
+.quote-modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9200;display:none;align-items:flex-end;justify-content:center}
+.quote-modal-ov.on{display:flex}
+.quote-modal{background:var(--bg2);border-radius:18px 18px 0 0;border-top:2px solid var(--amb);width:100%;max-width:500px;padding:22px 20px 32px;max-height:80vh;overflow-y:auto;transform:translateY(100%);transition:transform .28s cubic-bezier(.4,0,.2,1)}
+.quote-modal.on{transform:translateY(0)}
+.quote-prod-name{font-family:"Barlow Condensed";font-weight:700;font-size:1.1rem;margin-bottom:4px}
+.quote-prod-info{color:var(--t2);font-size:.82rem;margin-bottom:16px}
+.quote-loja-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px}
+.quote-loja-btn{padding:8px;border-radius:8px;border:1.5px solid var(--b);background:transparent;color:var(--t);font-family:Barlow;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .16s;text-align:left}
+.quote-loja-btn:hover,.quote-loja-btn.on{border-color:var(--amb);background:var(--ambs);color:var(--amb)}
+.quote-note{width:100%;padding:10px 12px;background:var(--bg3);border:1.5px solid var(--b);border-radius:8px;color:var(--t);font-family:Barlow;font-size:.85rem;outline:none;resize:none;transition:border-color .2s;margin-bottom:12px}
+.quote-note:focus{border-color:var(--amb)}
+.btn-quote-send{width:100%;padding:12px;background:var(--amb);border:none;border-radius:8px;color:#fff;font-family:"Barlow Condensed";font-size:.98rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px}
+.btn-quote-send:hover{background:#b45309}
+
+/* ── FALTA BADGE ── */
+.bout-quote{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;background:rgba(217,119,6,.1);color:var(--amb);border:1px solid rgba(217,119,6,.25);font-size:.67rem;font-weight:700;text-transform:uppercase;cursor:pointer;transition:all .16s}
+.bout-quote:hover{background:rgba(217,119,6,.2)}
+
 /* Product Cards (mobile table replacement) */
 .prod-card{background:var(--bg2);border:1px solid var(--b);border-radius:11px;padding:12px 14px;cursor:pointer;transition:all .18s;position:relative;overflow:hidden}
 .prod-card:active{transform:scale(.98);background:var(--sfh)}
@@ -511,7 +540,27 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
   </div>
 </div>
 
+<!-- QUOTE MODAL -->
+<div class="quote-modal-ov" id="quote-ov" onclick="if(event.target===this)clQuote()">
+  <div class="quote-modal" id="quote-modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div>
+        <div style="font-size:.7rem;color:var(--amb);font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px"><i class="fa-solid fa-clock-rotate-left"></i> Consultar Disponibilidade</div>
+        <div class="quote-prod-name" id="quote-prod-name">-</div>
+        <div class="quote-prod-info" id="quote-prod-info">Produto temporariamente em falta</div>
+      </div>
+      <button onclick="clQuote()" style="background:none;border:none;color:var(--t2);cursor:pointer;font-size:1rem;padding:4px;flex-shrink:0"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="ljlbl">Enviar consulta para qual loja?</div>
+    <div class="quote-loja-grid" id="quote-loja-grid"></div>
+    <div class="ljlbl" style="margin-bottom:6px">Observação (opcional)</div>
+    <textarea class="quote-note" id="quote-note" rows="2" placeholder="Ex: Preciso de 2 unidades, com urgência..."></textarea>
+    <button class="btn-quote-send" onclick="sendQuote()"><i class="fa-brands fa-whatsapp"></i> Consultar via WhatsApp</button>
+  </div>
+</div>
+
 <div class="page" id="pg-precos">
+  <div id="novidades-bar-wrap"></div>
   <div class="pghdr">
     <div><h2>Tabela de <em>Preços</em></h2><p id="subp">Preços para sua loja</p></div>
     <div class="upddiv" id="upddiv" style="display:none"><i class="fa-solid fa-clock-rotate-left"></i>Atualizado: <span id="updv">-</span></div>
@@ -696,6 +745,11 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
       <div class="asec" id="as-cfg-msg">
         <div class="stit">Configurar <em>Mensagens</em></div>
         <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="fg" style="background:var(--bg2);border:1px solid var(--b);border-radius:9px;padding:14px">
+            <label>📢 Novidades / Avisos (aparece no ticker do portal)</label>
+            <p style="font-size:.74rem;color:var(--t2);margin:5px 0 8px">Uma novidade por linha. Ex: Chegou nova linha Samsung A55</p>
+            <textarea id="msgnov" rows="4" style="margin-top:4px" placeholder="Chegou nova linha Samsung A55&#10;Promoção relâmpago em telas iPhone&#10;Entrega especial sábado"></textarea>
+          </div>
           <div class="fg" style="background:var(--bg2);border:1px solid var(--b);border-radius:9px;padding:14px"><label>Texto de abertura da cotação</label><textarea id="msgbv" rows="3" style="margin-top:7px">Olá! Meu código é {CODIGO}. Segue meu {TIPO}:</textarea></div>
           <div class="fg" style="background:var(--bg2);border:1px solid var(--b);border-radius:9px;padding:14px"><label>Aviso para entrega fora do horário</label><textarea id="msgent" rows="3" style="margin-top:7px">Nossas rotas passam às 10h e 14h. Após esses horários o frete volta ao valor normal.</textarea></div>
           <div class="fg" style="background:var(--bg2);border:1px solid var(--b);border-radius:9px;padding:14px"><label>Horários das rotas</label><input type="text" id="msgrotas" value="10h e 14h" style="margin-top:7px"></div>
@@ -1071,6 +1125,7 @@ function afterLg(){
   var subp=document.getElementById("subp");
   if(subp)subp.textContent=me.desconto>0?"Preços com "+me.desconto+"% de desconto - "+me.nome:"Preços para "+me.nome;
   loadCfg();bldChips();rTbl();rCart();rstSess();
+  renderNovidades();
   go(me.isAdmin?"admin":"precos");
 }
 
@@ -1117,6 +1172,7 @@ function loadCfg(){
       if(d.cats)CATS=d.cats;
       if(d.msgBV)CFG.msgBV=d.msgBV;
       if(d.msgEnt)CFG.msgEnt=d.msgEnt;
+      if(d.novidades){NOVIDADES=d.novidades;renderNovidades();}
       if(d.rotas){
         CFG.rotas=d.rotas;
         var eh=document.getElementById("ewarn-hrs");
@@ -1203,6 +1259,107 @@ function setCat(c,el,ctx){
   else{catAC=c;document.querySelectorAll("#chips2 .cf").forEach(function(x){x.classList.remove("on");});}
   el.classList.add("on");
   if(ctx===1)rTbl();else rCat();
+}
+
+// ── NOVIDADES ─────────────────────────────────────────────
+var NOVIDADES=[]; // Admin fills this via Firebase config
+
+function renderNovidades(){
+  var wrap=document.getElementById("novidades-bar-wrap");
+  if(!wrap)return;
+  // Build items: new products + custom news from admin
+  var items=[];
+  // New products (imported with _status novo)
+  PRODS.filter(function(p){return p._status==="novo"&&p.preco>0;}).slice(0,8).forEach(function(p){
+    items.push({icon:"fa-solid fa-star",label:"NOVO",text:p.produto+(p.marca?" · "+p.marca:"")});
+  });
+  // Custom novidades from admin config
+  NOVIDADES.forEach(function(n){items.push({icon:"fa-solid fa-bullhorn",label:"AVISO",text:n});});
+  // Restocked items (available + recently updated)
+  PRODS.filter(function(p){return isAv(p)&&p.preco>0&&p._status==="atualizado";}).slice(0,5).forEach(function(p){
+    items.push({icon:"fa-solid fa-circle-check",label:"VOLTOU",text:p.produto});
+  });
+  if(!items.length){
+    // Default message
+    items=[
+      {icon:"fa-solid fa-bolt",label:"",text:"Tabela de preços atualizada"},
+      {icon:"fa-solid fa-truck",label:"",text:"Entrega nas rotas 10h e 14h"},
+      {icon:"fa-solid fa-tags",label:"",text:"Consulte disponibilidade com seu consultor"}
+    ];
+  }
+  // Duplicate for seamless loop
+  var all=items.concat(items);
+  var html=all.map(function(it){
+    return'<span class="novidades-item">'
+      +(it.label?'<span class="novidades-lbl">'+it.label+'</span>':'<span class="novidades-dot"></span>')
+      +'<i class="'+it.icon+'"></i>'
+      +it.text
+      +'</span>';
+  }).join('');
+  wrap.innerHTML='<div class="novidades-bar"><div class="novidades-track">'+html+'</div></div>';
+}
+
+// ── QUOTE (COTAÇÃO EM FALTA) ─────────────────────────────
+var _quoteProd=null;
+var _quoteLoja=null;
+
+function opQuote(p){
+  _quoteProd=p;_quoteLoja=null;
+  var nm=document.getElementById("quote-prod-name");
+  var info=document.getElementById("quote-prod-info");
+  if(nm)nm.textContent=p.produto;
+  if(info)info.textContent=(p.marca||"")+(p.modelo?" · "+p.modelo:"")+" — Produto em falta";
+  // Build loja grid
+  var grid=document.getElementById("quote-loja-grid");
+  if(grid){
+    grid.innerHTML="";
+    LOJAS.filter(function(l){return l.ativo;}).forEach(function(l){
+      var btn=document.createElement("button");
+      btn.className="quote-loja-btn";
+      btn.textContent=l.nome;
+      (function(lj){btn.addEventListener("click",function(){
+        _quoteLoja=lj;
+        document.querySelectorAll(".quote-loja-btn").forEach(function(b){b.classList.remove("on");});
+        btn.classList.add("on");
+      });})(l);
+      grid.appendChild(btn);
+    });
+    // Auto-select client loja
+    if(me&&me.lojaId){
+      var lj=LOJAS.find(function(l){return l.id===me.lojaId;});
+      if(lj){_quoteLoja=lj;grid.querySelectorAll(".quote-loja-btn").forEach(function(b){if(b.textContent===lj.nome)b.classList.add("on");});}
+    }
+  }
+  var note=document.getElementById("quote-note");if(note)note.value="";
+  var ov=document.getElementById("quote-ov");
+  var md=document.getElementById("quote-modal");
+  if(ov)ov.classList.add("on");
+  setTimeout(function(){if(md)md.classList.add("on");},10);
+}
+function clQuote(){
+  var md=document.getElementById("quote-modal");
+  var ov=document.getElementById("quote-ov");
+  if(md)md.classList.remove("on");
+  setTimeout(function(){if(ov)ov.classList.remove("on");},280);
+}
+function sendQuote(){
+  if(!_quoteProd){toast("Produto não encontrado.","err");return;}
+  if(!_quoteLoja){toast("Selecione uma loja.","err");return;}
+  var cod=me?me.codigo:"?";
+  var note=document.getElementById("quote-note");
+  var obs=note?note.value.trim():"";
+  var NL=String.fromCharCode(10);
+  var msg="Olá! Sou o cliente *"+cod+"*."+NL
+    +"Gostaria de consultar disponibilidade do produto:"+NL+NL
+    +"*"+_quoteProd.produto+"*"
+    +(_quoteProd.marca?" · "+_quoteProd.marca:"")+NL
+    +"_(Produto atualmente em falta)_"
+    +(obs?NL+NL+"Obs: "+obs:"");
+  var url="https://wa.me/"+fmtWA(_quoteLoja.whatsapp)+"?text="+encodeURIComponent(msg);
+  var win=window.open(url,"_blank");
+  if(!win||win.closed||typeof win.closed==="undefined")window.location.href=url;
+  clQuote();
+  toast("Consulta enviada!","ok");
 }
 
 // ── PWA INSTALL ───────────────────────────────────────────
@@ -1308,6 +1465,14 @@ function clrFilter(){
   rTbl();clFilter();
 }
 
+// ── TOGGLE SHOW OUT OF STOCK ─────────────────────────────
+window._showFalta=false;
+function togShowFalta(el){
+  window._showFalta=!window._showFalta;
+  rTbl();
+  toast(window._showFalta?"Mostrando produtos em falta":"Ocultando produtos em falta","info");
+}
+
 // ── DEBOUNCED SEARCH ─────────────────────────────────────────
 var _srchTimer=null;
 function dbSearch(val,ctx){
@@ -1357,7 +1522,12 @@ function rTbl(){
       td4.appendChild(ppr);
       var td5=document.createElement("td");
       if(av){var bk=document.createElement("span");bk.className="bok";bk.innerHTML='<i class="fa-solid fa-circle" style="font-size:.4rem"></i> Disponível';td5.appendChild(bk);}
-      else{var bt=document.createElement("span");bt.className="bout";bt.innerHTML='<i class="fa-solid fa-circle" style="font-size:.4rem"></i> Em Falta';td5.appendChild(bt);}
+      else{
+        var bt=document.createElement("button");bt.className="bout-quote";
+        bt.innerHTML='<i class="fa-solid fa-clock-rotate-left" style="font-size:.6rem"></i> Em Falta · Consultar';
+        (function(pp){bt.addEventListener("click",function(e){e.stopPropagation();opQuote(pp);});})(p);
+        td5.appendChild(bt);
+      }
       var td6=document.createElement("td");td6.style.cssText="display:flex;gap:4px;justify-content:flex-end";
       if(av){
         (function(pp){
@@ -1380,8 +1550,13 @@ function rTbl(){
   var tot=PRODS.length;
   var disp=PRODS.filter(function(p){return isAv(p)&&p.preco>0;}).length;
   var sb=document.getElementById("sbar");
+  var emFalta=PRODS.filter(function(p){return !isAv(p)&&p.preco>0;}).length;
   if(sb)sb.innerHTML='<div class="si"><div class="sdot ok"></div>'+disp+' disponíveis</div>'
-    +'<div class="si"><div class="sdot out"></div>'+(tot-disp)+' em falta</div>'
+    +'<div class="si" style="cursor:pointer" onclick="togShowFalta(this)">'+
+      '<div class="sdot out"></div>'+emFalta+' em falta'
+      +(window._showFalta?' <i class="fa-solid fa-eye" style="font-size:.65rem;color:var(--amb)"></i>':
+        ' <i class="fa-solid fa-eye-slash" style="font-size:.65rem;color:var(--t3)"></i>')
+      +'</div>'
     +'<div class="si"><i class="fa-solid fa-box" style="color:var(--t3)"></i>&nbsp;'+list.length+' exibidos</div>';
 }
 
@@ -1426,10 +1601,19 @@ function rCards(list,desc){
     info.appendChild(sub);
     
     // Status
-    var status=document.createElement("div");
-    status.className="prod-card-status "+(av?"ok":"out");
-    status.innerHTML=av?'<i class="fa-solid fa-circle" style="font-size:.4rem"></i> Disponível':'<i class="fa-solid fa-circle" style="font-size:.4rem"></i> Em Falta';
-    info.appendChild(status);
+    if(av){
+      var status=document.createElement("div");
+      status.className="prod-card-status ok";
+      status.innerHTML='<i class="fa-solid fa-circle" style="font-size:.4rem"></i> Disponível';
+      info.appendChild(status);
+    }else{
+      var qbtn=document.createElement("button");
+      qbtn.className="bout-quote";
+      qbtn.style.marginTop="4px";
+      qbtn.innerHTML='<i class="fa-solid fa-clock-rotate-left" style="font-size:.6rem"></i> Em Falta · Consultar';
+      (function(pp){qbtn.addEventListener("click",function(e){e.stopPropagation();opQuote(pp);});})(p);
+      info.appendChild(qbtn);
+    }
     
     top.appendChild(info);
     
@@ -2350,13 +2534,15 @@ function saveCfg(){
   var ent=document.getElementById("msgent");if(ent)CFG.msgEnt=ent.value;
   var rot=document.getElementById("msgrotas");if(rot)CFG.rotas=rot.value;
   var eh=document.getElementById("ewarn-hrs");if(eh)eh.textContent=CFG.rotas;
-  svPortal();toast("Salvo.","ok");
+  var nov=document.getElementById("msgnov");
+  if(nov){NOVIDADES=nov.value.split("\n").map(function(s){return s.trim();}).filter(function(s){return s.length>0;});}
+  svPortal();renderNovidades();toast("Salvo.","ok");
 }
 function svPortal(){
   if(!window.FB||!window.FB.FB_OK)return;
   window.FB.setDoc(window.FB.doc(window.FB.db,"config","portal"),{
     contatos:CI_LINKS,redesSociais:SOCIALS,lojas:LOJAS,cats:CATS,
-    msgBV:CFG.msgBV,msgEnt:CFG.msgEnt,rotas:CFG.rotas
+    msgBV:CFG.msgBV,msgEnt:CFG.msgEnt,rotas:CFG.rotas,novidades:NOVIDADES
   },{merge:true}).catch(function(){});
 }
 
@@ -2439,6 +2625,10 @@ function aN(sec){
   if(sec==="clientes")rCliTb();
   if(sec==="lojas")rLojas();
   if(sec==="cfg-ci")rCIAdm();
+  if(sec==="cfg-msg"){
+    var nov=document.getElementById("msgnov");
+    if(nov)nov.value=NOVIDADES.join("\n");
+  }
   if(sec==="cfg-soc")rSocAdm();
   if(sec==="cats")rCatsList();
   if(sec==="dash")uDash();
