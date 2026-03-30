@@ -138,8 +138,32 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
 .pmov.on{display:flex}
 .pmd{background:var(--bg2);border-radius:18px 18px 0 0;border-top:1px solid var(--b);width:100%;max-width:500px;max-height:87vh;overflow-y:auto;transform:translateY(100%);transition:transform .28s cubic-bezier(.4,0,.2,1)}
 .pmd.on{transform:translateY(0)}
-.pmimg{width:100%;aspect-ratio:16/9;object-fit:cover;background:var(--bg3)}
+.pmimg{width:100%;aspect-ratio:16/9;object-fit:cover;background:var(--bg3);display:block}
 .pmph{width:100%;aspect-ratio:16/9;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:3.5rem;color:var(--t3)}
+/* Carousel */
+.carousel{position:relative;overflow:hidden;background:var(--bg3);aspect-ratio:16/9}
+.carousel-track{display:flex;transition:transform .3s cubic-bezier(.4,0,.2,1);height:100%;will-change:transform}
+.carousel-slide{flex:0 0 100%;height:100%;position:relative}
+.carousel-slide img{width:100%;height:100%;object-fit:cover;display:block}
+.carousel-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3rem;color:var(--t3)}
+.carousel-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.5);border:none;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;z-index:10;transition:background .18s;backdrop-filter:blur(4px)}
+.carousel-btn:hover{background:rgba(232,28,28,.7)}
+.carousel-prev{left:8px}.carousel-next{right:8px}
+.carousel-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:10}
+.carousel-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.45);cursor:pointer;transition:all .2s;border:none;padding:0}
+.carousel-dot.on{background:#fff;width:18px;border-radius:4px}
+/* Admin photo slots */
+.photo-slots{display:flex;gap:7px;margin-bottom:8px;flex-wrap:wrap}
+.photo-slot{position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:2px solid var(--b);background:var(--bg3);flex-shrink:0}
+.photo-slot img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-slot-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:var(--t3)}
+.photo-slot-rm{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(232,28,28,.85);border:none;color:#fff;cursor:pointer;font-size:.55rem;display:flex;align-items:center;justify-content:center;line-height:1}
+.photo-slot-add{border:2px dashed var(--b2);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;transition:all .18s}
+.photo-slot-add:hover{border-color:var(--red);background:var(--reds)}
+.photo-slot-add i{color:var(--t3);font-size:1.1rem}
+.photo-slot-add span{font-size:.6rem;color:var(--t3);font-weight:600}
+.photo-slot-add.cam-slot{border-color:rgba(232,28,28,.3)}
+.photo-slot-add.cam-slot i{color:var(--red)}
 .pmbd{padding:19px}
 .pmcat{display:inline-block;padding:2px 8px;background:var(--reds);color:var(--red);border-radius:4px;font-size:.69rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
 .pmnm{font-family:"Barlow Condensed";font-weight:700;font-size:1.2rem;letter-spacing:.03em;margin-bottom:3px}
@@ -198,6 +222,9 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
 .cpcard.na{opacity:.42;cursor:default;filter:grayscale(.7)}
 .cpcard.na:hover{border-color:var(--b);transform:none;box-shadow:none}
 .cpcard img{width:100%;aspect-ratio:1;object-fit:cover;background:var(--bg3);display:block}
+.cpcard-photos{position:relative;aspect-ratio:1;overflow:hidden;background:var(--bg3)}
+.cpcard-photos img{width:100%;height:100%;object-fit:cover;display:block}
+.cpcard-badge{position:absolute;bottom:5px;right:5px;background:rgba(0,0,0,.65);color:#fff;font-size:.6rem;font-weight:700;padding:2px 6px;border-radius:10px}
 .cpph{width:100%;aspect-ratio:1;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:1.9rem;color:var(--t3)}
 .cpbd{padding:9px}.cpnm{font-size:.8rem;font-weight:600;color:var(--t);margin-bottom:3px;line-height:1.2}
 .cppr{font-family:"Barlow Condensed";font-size:.92rem;font-weight:700;color:var(--red)}.cppr.g{color:var(--t3)}
@@ -602,7 +629,7 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
     <div class="upddiv" id="upddiv" style="display:none"><i class="fa-solid fa-clock-rotate-left"></i>Atualizado: <span id="updv">-</span></div>
   </div>
   <div class="toolbar">
-    <div class="srch"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="srchp" placeholder="Buscar produto, marca..." oninput="dbSearch(this.value,1)" autocomplete="off"></div>
+    <div class="srch" style="position:relative"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="srchp" placeholder="Buscar produto, marca..." oninput="dbSearch(this.value,1)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>
     <button class="filter-btn" id="filter-btn-p" onclick="opFilter()">
       <i class="fa-solid fa-sliders"></i> Filtros <span class="filter-badge" id="filter-badge" style="display:none">1</span>
     </button>
@@ -621,7 +648,7 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
 <div class="page" id="pg-catalogo">
   <div class="chero"><h2>Catálogo de Produtos</h2><p>Toque em um produto para ver detalhes</p></div>
   <div class="toolbar">
-    <div class="srch"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="srchc" placeholder="Buscar..." oninput="dbSearch(this.value,2)" autocomplete="off"></div>
+    <div class="srch"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="srchc" placeholder="Buscar..." oninput="dbSearch(this.value,2)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>
     <div class="chips" id="chips2"></div>
   </div>
   <div class="cpgrid" id="cpgrid"></div>
@@ -852,6 +879,19 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
       <button class="btnr" style="flex:1" onclick="applyFilter()"><i class="fa-solid fa-check"></i> Aplicar</button>
       <button class="btno" style="flex:1" onclick="clrFilter()"><i class="fa-solid fa-rotate-left"></i> Limpar</button>
     </div>
+  </div>
+</div>
+
+<!-- PHOTO MANAGER MODAL -->
+<div class="modal-ov" id="photo-mgr-ov" onclick="if(event.target===this)clPhotoMgr()">
+  <div class="modal-box" id="photo-mgr-box" style="border-top-color:var(--blu)">
+    <div class="modal-hdr">
+      <span><i class="fa-solid fa-images" style="color:var(--blu);margin-right:6px"></i>Gerenciar Fotos</span>
+      <button onclick="clPhotoMgr()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="photo-mgr-prod-name" style="font-size:.82rem;color:var(--t2);margin-bottom:14px"></div>
+    <div class="photo-slots" id="photo-slots"></div>
+    <p style="font-size:.72rem;color:var(--t3);margin-top:6px"><i class="fa-solid fa-circle-info"></i> Máximo 3 fotos por produto. Arraste para reordenar.</p>
   </div>
 </div>
 
@@ -1433,6 +1473,119 @@ function opQuote(p){
   if(ov)ov.classList.add("on");
   setTimeout(function(){if(md)md.classList.add("on");},10);
 }
+// ── PHOTO MANAGER ─────────────────────────────────────────
+var _pmgrProd=null;
+
+function opPhotoMgr(p){
+  _pmgrProd=p;
+  var nm=document.getElementById("photo-mgr-prod-name");
+  if(nm)nm.textContent=p.produto;
+  renderPhotoSlots(p);
+  var ov=document.getElementById("photo-mgr-ov");
+  if(ov)ov.classList.add("on");
+}
+function clPhotoMgr(){
+  var ov=document.getElementById("photo-mgr-ov");
+  if(ov)ov.classList.remove("on");
+  _pmgrProd=null;
+}
+function renderPhotoSlots(p){
+  var el=document.getElementById("photo-slots");if(!el)return;
+  el.innerHTML="";
+  // Get current photos
+  var fotos=p.fotos?p.fotos.slice():(p.imagemUrl?[p.imagemUrl]:[]);
+  
+  // Render existing photos
+  fotos.forEach(function(url,idx){
+    var slot=document.createElement("div");slot.className="photo-slot";
+    var img=document.createElement("img");img.src=url;img.alt="Foto "+(idx+1);
+    slot.appendChild(img);
+    // Remove button
+    var rm=document.createElement("button");rm.className="photo-slot-rm";
+    rm.innerHTML='<i class="fa-solid fa-xmark"></i>';
+    (function(i2){rm.addEventListener("click",function(){
+      fotos.splice(i2,1);
+      saveFotosToProduct(p,fotos);
+      renderPhotoSlots(p);
+    });})(idx);
+    slot.appendChild(rm);
+    el.appendChild(slot);
+  });
+  
+  // Add slots if < 3
+  if(fotos.length<3){
+    // Camera slot
+    var slotCam=document.createElement("label");
+    slotCam.className="photo-slot photo-slot-add cam-slot";slotCam.title="Tirar foto";
+    slotCam.innerHTML='<i class="fa-solid fa-camera"></i><span>Câmera</span>';
+    var inpCam=document.createElement("input");inpCam.type="file";inpCam.accept="image/*";
+    inpCam.setAttribute("capture","environment");inpCam.style.display="none";
+    (function(pp,ff){inpCam.addEventListener("change",function(ev){
+      addPhotoSlot(ev,pp,ff,function(newFotos){renderPhotoSlots(pp);});
+    });})(p,fotos);
+    slotCam.appendChild(inpCam);el.appendChild(slotCam);
+    
+    // Gallery slot
+    var slotArq=document.createElement("label");
+    slotArq.className="photo-slot photo-slot-add";slotArq.title="Escolher da galeria";
+    slotArq.innerHTML='<i class="fa-solid fa-image"></i><span>Galeria</span>';
+    var inpArq=document.createElement("input");inpArq.type="file";inpArq.accept="image/*";
+    inpArq.style.display="none";
+    (function(pp,ff){inpArq.addEventListener("change",function(ev){
+      addPhotoSlot(ev,pp,ff,function(newFotos){renderPhotoSlots(pp);});
+    });})(p,fotos);
+    slotArq.appendChild(inpArq);el.appendChild(slotArq);
+  }
+}
+function addPhotoSlot(e,p,currentFotos,callback){
+  var file=e.target.files[0];if(!file)return;
+  e.target.value="";
+  if(currentFotos.length>=3){toast("Máximo 3 fotos por produto.","err");return;}
+  var cfg=window.CLD;
+  if(!cfg||cfg.cloudName==="SEU_CLOUD_NAME"){toast("Cloudinary não configurado.","err");return;}
+  toast("Enviando foto "+(currentFotos.length+1)+"/3...","info");
+  compressImg(file,900,0.88,function(blob,localUrl){
+    // Add local preview immediately
+    currentFotos.push(localUrl);
+    saveFotosToProduct(p,currentFotos.slice());
+    if(callback)callback(currentFotos);
+    // Upload to Cloudinary
+    var fd=new FormData();fd.append("file",blob,"foto.jpg");fd.append("upload_preset",cfg.uploadPreset);
+    fetch("https://api.cloudinary.com/v1_1/"+cfg.cloudName+"/image/upload",{method:"POST",body:fd})
+      .then(function(r){return r.json();})
+      .then(function(data){
+        if(!data.secure_url)throw new Error("Upload falhou");
+        // Replace local with CDN url
+        var idx=currentFotos.indexOf(localUrl);
+        if(idx>=0)currentFotos[idx]=data.secure_url;
+        saveFotosToProduct(p,currentFotos.slice());
+        if(callback)callback(currentFotos);
+        toast("Foto "+(currentFotos.length)+"/3 enviada!","ok");
+      })
+      .catch(function(err){
+        // Revert
+        var idx=currentFotos.indexOf(localUrl);
+        if(idx>=0)currentFotos.splice(idx,1);
+        saveFotosToProduct(p,currentFotos.slice());
+        if(callback)callback(currentFotos);
+        toast("Erro: "+err.message,"err");
+      });
+  });
+}
+function saveFotosToProduct(p,fotos){
+  var idx=PRODS.findIndex(function(x){return x.id===p.id;});
+  if(idx<0)return;
+  PRODS[idx].fotos=fotos;
+  PRODS[idx].imagemUrl=fotos.length>0?fotos[0]:""; // keep backward compat
+  p.fotos=fotos;p.imagemUrl=fotos.length>0?fotos[0]:"";
+  if(window.FB&&window.FB.FB_OK){
+    window.FB.updateDoc(window.FB.doc(window.FB.db,"produtos",p.id),{
+      fotos:fotos,imagemUrl:fotos.length>0?fotos[0]:""
+    }).catch(function(){});
+  }
+  rCatAdm();rTbl();rCat();
+}
+
 function clQuote(){
   var md=document.getElementById("quote-modal");
   var ov=document.getElementById("quote-ov");
@@ -1686,8 +1839,27 @@ function dbSearch(val,ctx){
   _srchTimer=setTimeout(function(){
     if(ctx===1)rTbl();
     else rCat();
-  },300);
+  },250);
 }
+// Wire search inputs on DOM ready for better mobile support
+document.addEventListener("DOMContentLoaded",function(){
+  ["srchp","srchc"].forEach(function(id,ctx){
+    var el=document.getElementById(id);
+    if(!el)return;
+    // Use both input and keyup for mobile reliability
+    el.addEventListener("keyup",function(){dbSearch(this.value,ctx+1);});
+    // Focus: show keyboard immediately on mobile
+    el.addEventListener("focus",function(){
+      if(window.innerWidth<=768){
+        setTimeout(function(){
+          el.scrollIntoView({behavior:"smooth",block:"start"});
+        },300);
+      }
+    });
+    // Clear button support
+    el.addEventListener("search",function(){dbSearch(this.value,ctx+1);});
+  });
+});
 
 // ── PRODUCTS TABLE ────────────────────────────────────────
 function rTbl(){
@@ -1889,10 +2061,50 @@ function opPM(p){
   var iw=document.getElementById("pmimgw");
   if(iw){
     iw.innerHTML="";
-    if(p.imagemUrl){
-      var im=document.createElement("img");im.className="pmimg";im.src=p.imagemUrl;im.alt=p.produto;im.loading="lazy";iw.appendChild(im);
-    }else{
+    var fotos=p.fotos&&p.fotos.length?p.fotos:(p.imagemUrl?[p.imagemUrl]:[]);
+    if(fotos.length===0){
       var ph=document.createElement("div");ph.className="pmph";ph.innerHTML="&#128230;";iw.appendChild(ph);
+    }else if(fotos.length===1){
+      var im=document.createElement("img");im.className="pmimg";im.src=fotos[0];im.alt=p.produto;im.loading="lazy";iw.appendChild(im);
+    }else{
+      // Carousel
+      var car=document.createElement("div");car.className="carousel";
+      var track=document.createElement("div");track.className="carousel-track";
+      fotos.forEach(function(url){
+        var slide=document.createElement("div");slide.className="carousel-slide";
+        var img=document.createElement("img");img.src=url;img.alt=p.produto;img.loading="lazy";
+        slide.appendChild(img);track.appendChild(slide);
+      });
+      car.appendChild(track);
+      var ci=0;
+      if(fotos.length>1){
+        var prev=document.createElement("button");prev.className="carousel-btn carousel-prev";
+        prev.innerHTML='<i class="fa-solid fa-chevron-left"></i>';
+        var next=document.createElement("button");next.className="carousel-btn carousel-next";
+        next.innerHTML='<i class="fa-solid fa-chevron-right"></i>';
+        var dots=document.createElement("div");dots.className="carousel-dots";
+        var dotEls=fotos.map(function(_,idx2){
+          var d=document.createElement("button");d.className="carousel-dot"+(idx2===0?" on":"");
+          d.addEventListener("click",function(){goSlide(idx2);});
+          dots.appendChild(d);return d;
+        });
+        function goSlide(n){
+          ci=Math.max(0,Math.min(n,fotos.length-1));
+          track.style.transform="translateX(-"+ci*100+"%)";
+          dotEls.forEach(function(d,i){d.classList.toggle("on",i===ci);});
+        }
+        prev.addEventListener("click",function(){goSlide(ci-1);});
+        next.addEventListener("click",function(){goSlide(ci+1);});
+        car.appendChild(prev);car.appendChild(next);car.appendChild(dots);
+        // Swipe support
+        var tsx=0;
+        car.addEventListener("touchstart",function(e){tsx=e.touches[0].clientX;},{passive:true});
+        car.addEventListener("touchend",function(e){
+          var dx=e.changedTouches[0].clientX-tsx;
+          if(Math.abs(dx)>40){goSlide(dx<0?ci+1:ci-1);}
+        });
+      }
+      car.appendChild(track);iw.appendChild(car);
     }
   }
   var pcat=document.getElementById("pmcat");if(pcat)pcat.textContent=p.categoria;
@@ -1942,8 +2154,17 @@ function rCat(){
     var av=isAv(p),pf=p.preco*(1-desc/100);
     var d=document.createElement("div");d.className="cpcard"+(av?"":" na");
     if(av){(function(pp){d.addEventListener("click",function(){opPM(pp);});})(p);}
-    if(p.imagemUrl){
-      var im=document.createElement("img");im.src=p.imagemUrl;im.alt=p.produto;im.loading="lazy";d.appendChild(im);
+    var fotos2=p.fotos&&p.fotos.length?p.fotos:(p.imagemUrl?[p.imagemUrl]:[]);
+    if(fotos2.length>0){
+      var cw=document.createElement("div");cw.className="cpcard-photos";
+      var im=document.createElement("img");im.src=fotos2[0];im.alt=p.produto;im.loading="lazy";
+      cw.appendChild(im);
+      if(fotos2.length>1){
+        var cb=document.createElement("div");cb.className="cpcard-badge";
+        cb.innerHTML='<i class="fa-solid fa-images" style="margin-right:2px"></i>'+fotos2.length;
+        cw.appendChild(cb);
+      }
+      d.appendChild(cw);
     }else{
       var ph=document.createElement("div");ph.className="cpph";ph.innerHTML="&#128230;";d.appendChild(ph);
     }
@@ -2504,9 +2725,20 @@ function rCatAdm(){
   var grid=document.getElementById("cadmgrid");if(!grid)return;grid.innerHTML="";
   list.forEach(function(p){
     var card=document.createElement("div");card.className="cadmc";
-    // Image or placeholder
-    if(p.imagemUrl){
-      var im=document.createElement("img");im.src=p.imagemUrl;im.alt=p.produto;im.loading="lazy";card.appendChild(im);
+    // Photo preview (first photo or placeholder)
+    var fotos0=p.fotos&&p.fotos.length?p.fotos:(p.imagemUrl?[p.imagemUrl]:[]);
+    if(fotos0.length>0){
+      var thumbWrap=document.createElement("div");thumbWrap.style.cssText="position:relative";
+      var im=document.createElement("img");im.src=fotos0[0];im.alt=p.produto;im.loading="lazy";
+      im.style.cssText="width:100%;aspect-ratio:1;object-fit:cover;display:block";
+      thumbWrap.appendChild(im);
+      if(fotos0.length>1){
+        var cnt=document.createElement("div");
+        cnt.style.cssText="position:absolute;bottom:5px;right:5px;background:rgba(0,0,0,.65);color:#fff;font-size:.65rem;font-weight:700;padding:2px 6px;border-radius:10px";
+        cnt.innerHTML='<i class="fa-solid fa-images" style="margin-right:3px"></i>'+fotos0.length;
+        thumbWrap.appendChild(cnt);
+      }
+      card.appendChild(thumbWrap);
     }else{
       var ph=document.createElement("div");ph.className="cadmph";ph.innerHTML="&#128230;";card.appendChild(ph);
     }
@@ -2520,23 +2752,13 @@ function rCatAdm(){
     (function(pid){tog.addEventListener("click",function(){togDisp(pid);});})(p.id);
     acts.appendChild(tog);
     // Upload photo label
-    // Câmera
-    var lblCam=document.createElement("label");
-    lblCam.className="upbtn cam";lblCam.title="Tirar foto (câmera)";
-    lblCam.innerHTML='<i class="fa-solid fa-camera"></i>';
-    var inpCam=document.createElement("input");
-    inpCam.type="file";inpCam.accept="image/*";
-    inpCam.setAttribute("capture","environment");
-    (function(pid){inpCam.addEventListener("change",function(ev){upImg(ev,pid);});})(p.id);
-    lblCam.appendChild(inpCam);acts.appendChild(lblCam);
-    // Galeria/Arquivo
-    var lblArq=document.createElement("label");
-    lblArq.className="upbtn arq";lblArq.title="Escolher foto da galeria";
-    lblArq.innerHTML='<i class="fa-solid fa-image"></i>';
-    var inpArq=document.createElement("input");
-    inpArq.type="file";inpArq.accept="image/*";
-    (function(pid){inpArq.addEventListener("change",function(ev){upImg(ev,pid);});})(p.id);
-    lblArq.appendChild(inpArq);acts.appendChild(lblArq);
+    // Photo management button
+    var pmbtn=document.createElement("button");
+    pmbtn.className="upbtn cam";
+    var fotoCount=(p.fotos&&p.fotos.length)?p.fotos.length:(p.imagemUrl?1:0);
+    pmbtn.innerHTML='<i class="fa-solid fa-images"></i> Fotos ('+fotoCount+"/3)";
+    (function(pp){pmbtn.addEventListener("click",function(){opPhotoMgr(pp);});})(p);
+    acts.appendChild(pmbtn);
     // Remove image button
     if(p.imagemUrl){
       var rmbtn=document.createElement("button");rmbtn.className="iico";rmbtn.title="Remover foto";
