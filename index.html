@@ -441,7 +441,7 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
     <div class="upddiv" id="upddiv" style="display:none"><i class="fa-solid fa-clock-rotate-left"></i>Atualizado: <span id="updv">-</span></div>
   </div>
   <div class="toolbar">
-    <div class="srch"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="srchp" placeholder="Buscar produto, marca..." oninput="rTbl()" autocomplete="off"></div>
+    <div class="srch"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="srchp" placeholder="Buscar produto, marca..." oninput="dbSearch(this.value,1)" autocomplete="off"></div>
     <div class="chips" id="chips1"></div>
   </div>
   <div class="sbar" id="sbar"></div>
@@ -456,7 +456,7 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
 <div class="page" id="pg-catalogo">
   <div class="chero"><h2>Catálogo de Produtos</h2><p>Toque em um produto para ver detalhes</p></div>
   <div class="toolbar">
-    <div class="srch"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="srchc" placeholder="Buscar..." oninput="rCat()" autocomplete="off"></div>
+    <div class="srch"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="srchc" placeholder="Buscar..." oninput="dbSearch(this.value,2)" autocomplete="off"></div>
     <div class="chips" id="chips2"></div>
   </div>
   <div class="cpgrid" id="cpgrid"></div>
@@ -1031,7 +1031,10 @@ function NL(){return String.fromCharCode(10);}
 
 // ── CHIPS ─────────────────────────────────────────────────
 function bldChips(){
-  var a=["Todos"].concat(CATS.filter(function(c){return PRODS.some(function(p){return p.categoria===c;});}));
+  var catOrder=["Telas","Baterias","Flex Placa","Flex Power","Biometrias","Auto Falantes","Peliculas","Lentes"];
+  var usedCats=CATS.filter(function(c){return PRODS.some(function(p){return p.categoria===c;});});
+  usedCats.sort(function(a,b){var ai=catOrder.indexOf(a);var bi=catOrder.indexOf(b);if(ai<0)ai=99;if(bi<0)bi=99;return ai-bi;});
+  var a=["Todos"].concat(usedCats);
   var novCount=PRODS.filter(function(p){return p.novidade;}).length;
   var el=document.getElementById("chips1");if(!el)return;el.innerHTML="";
   // Add Novidades chip first if there are new products
@@ -1053,7 +1056,10 @@ function bldChips(){
   });
 }
 function bldChips2(){
-  var a=["Todos"].concat(CATS.filter(function(c){return PRODS.some(function(p){return p.categoria===c;});}));
+  var catOrder=["Telas","Baterias","Flex Placa","Flex Power","Biometrias","Auto Falantes","Peliculas","Lentes"];
+  var usedCats=CATS.filter(function(c){return PRODS.some(function(p){return p.categoria===c;});});
+  usedCats.sort(function(a,b){var ai=catOrder.indexOf(a);var bi=catOrder.indexOf(b);if(ai<0)ai=99;if(bi<0)bi=99;return ai-bi;});
+  var a=["Todos"].concat(usedCats);
   var el=document.getElementById("chips2");if(!el)return;el.innerHTML="";
   a.forEach(function(c){
     var d=document.createElement("div");
@@ -1068,6 +1074,16 @@ function setCat(c,el,ctx){
   else{catAC=c;document.querySelectorAll("#chips2 .cf").forEach(function(x){x.classList.remove("on");});}
   el.classList.add("on");
   if(ctx===1)rTbl();else rCat();
+}
+
+// ── DEBOUNCED SEARCH ─────────────────────────────────────────
+var _srchTimer=null;
+function dbSearch(val,ctx){
+  clearTimeout(_srchTimer);
+  _srchTimer=setTimeout(function(){
+    if(ctx===1)rTbl();
+    else rCat();
+  },220);
 }
 
 // ── PRODUCTS TABLE ────────────────────────────────────────
@@ -1181,9 +1197,17 @@ function rCat(){
   var srchEl=document.getElementById("srchc");
   var q=srchEl?srchEl.value.toLowerCase():"";
   var list=PRODS.filter(function(p){
-    var visivel=p.mostrarCatalogo===true;
-    return visivel&&(catAC==="Todos"||p.categoria===catAC)&&
-      (!q||((p.produto+" "+p.marca+" "+p.categoria).toLowerCase().indexOf(q)>=0));
+    if(!p.mostrarCatalogo)return false;
+    if(catAC!=="Todos"&&p.categoria!==catAC)return false;
+    if(!q)return true;
+    var txt=(p.produto+" "+(p.marca||"")+" "+p.categoria).toLowerCase();
+    return txt.indexOf(q)>=0;
+  }).sort(function(a,b){
+    var catOrder=["Telas","Baterias","Flex Placa","Flex Power","Biometrias","Auto Falantes","Peliculas","Lentes"];
+    var ai=catOrder.indexOf(a.categoria);var bi=catOrder.indexOf(b.categoria);
+    if(ai<0)ai=99;if(bi<0)bi=99;
+    if(ai!==bi)return ai-bi;
+    return a.produto.localeCompare(b.produto,"pt-BR");
   });
   var grid=document.getElementById("cpgrid");if(!grid)return;grid.innerHTML="";
   var desc=me?me.desconto||0:0;
@@ -1526,102 +1550,101 @@ function doImport(){
   if(!rawRows.length)return;
   var h=rawRows[0],rIdx={};
   h.forEach(function(_,i){var r=colMap[i]||"ignorar";if(r!=="ignorar"&&!rIdx[r])rIdx[r]=i;});
-  
-  var novos=0,atualizados=0,ignorados=0;
-  var agora=Date.now();
-  
-  // Build index of existing products by name and by codigo
-  var existByNome={};
-  var existByCod={};
-  PRODS.forEach(function(p){
-    existByNome[p.produto.toUpperCase().trim()]=p;
-    if(p.codigo)existByCod[String(p.codigo)]=p;
-  });
-  
+  var getV=function(role){return rIdx[role]!==undefined?rawRows[0][rIdx[role]]:undefined;};
+
+  var newP=[];
+  // Build map of existing products for comparison
+  var existMap={};
+  PRODS.forEach(function(p){existMap[p.produto.toLowerCase().trim()]=p;});
+
   for(var r=1;r<rawRows.length;r++){
     var row=rawRows[r];
     if(row.every(function(v){return v===""||v===null||v===undefined;}))continue;
-    var getV=function(role){return rIdx[role]!==undefined?row[rIdx[role]]:"";}
-    
-    var pv=String(getV("produto")||row[1]||row[0]||"").trim();
+    var getRow=function(role){return rIdx[role]!==undefined?row[rIdx[role]]:"";}
+    var pv=String(getRow("produto")||row[0]||"").trim();
     if(!pv)continue;
-    
-    var codigoRaw=String(getV("codigo")||row[0]||"").trim();
-    var mv=String(getV("marca")).trim();
-    var modv=String(getV("modelo")).trim();
-    var dv=String(getV("descricao")).trim();
-    var preco=parseFloat(String(getV("preco")).replace(",",".").replace(/[^0-9.]/g,""))||0;
-    var estoque=parseInt(String(getV("estoque")).replace(/[^0-9]/g,""))||0;
-    var catRaw=String(getV("categoria")).trim();
-    var categoria=catRaw&&CATS.indexOf(catRaw)>=0?catRaw:guessCat(pv);
-    
-    // Check if product already exists (by code or by name)
-    var existing=existByCod[codigoRaw]||existByNome[pv.toUpperCase()];
-    
-    if(existing){
-      // UPDATE existing product - preserve imagemUrl, mostrarCatalogo
-      var changed=existing.preco!==preco||existing.estoque!==estoque;
-      existing.preco=preco;
-      existing.estoque=estoque;
-      existing.disponivel=estoque>0;
-      existing.categoria=categoria;
-      if(mv)existing.marca=mv;
-      if(modv)existing.modelo=modv;
-      existing.codigo=codigoRaw;
-      existing.novidade=false;
-      if(changed&&window.FB&&window.FB.FB_OK){
-        window.FB.updateDoc(window.FB.doc(window.FB.db,"produtos",existing.id),{
-          preco:preco,estoque:estoque,disponivel:estoque>0,
-          categoria:categoria,codigo:codigoRaw,novidade:false,
-          updatedAt:window.FB.serverTimestamp()
-        }).catch(function(){});
-      }
-      atualizados++;
-    }else{
-      // NEW product
-      var id="p"+agora+r;
-      var prod={
-        id:id,codigo:codigoRaw,produto:pv,marca:mv,modelo:modv,
-        descricao:dv,categoria:categoria,preco:preco,estoque:estoque,
-        disponivel:estoque>0,imagemUrl:"",mostrarCatalogo:false,
-        novidade:true,createdAt:agora
-      };
-      PRODS.push(prod);
-      existByNome[pv.toUpperCase()]=prod;
-      if(codigoRaw)existByCod[codigoRaw]=prod;
-      if(window.FB&&window.FB.FB_OK){
-        window.FB.setDoc(window.FB.doc(window.FB.db,"produtos",id),
-          Object.assign({},prod,{updatedAt:window.FB.serverTimestamp()})).catch(function(){});
-      }
-      novos++;
-    }
+
+    var mv=String(getRow("marca")||"").trim();
+    var modv=String(getRow("modelo")||"").trim();
+    var dv=String(getRow("descricao")||"").trim();
+    var precoStr=String(getRow("preco")||"").replace(/[R$\s]/g,"").replace(",",".").trim();
+    var preco=parseFloat(precoStr)||0;
+    var estoqueStr=String(getRow("estoque")||"").trim();
+    var estoque=parseInt(estoqueStr)||0;
+
+    // Skip rows with no price AND price column exists (broken/header rows)
+    if(preco===0&&estoqueStr===""&&rIdx["preco"]!==undefined)continue;
+
+    var catRaw=String(getRow("categoria")||"").trim();
+    var categoria=catRaw&&CATS.indexOf(catRaw)>=0?catRaw:guessCat(pv+" "+mv+" "+catRaw);
+
+    // Compare with existing
+    var key=pv.toLowerCase().trim();
+    var exist=existMap[key];
+    var id=exist?exist.id:"p"+Date.now()+r;
+
+    var prod={
+      id:id,
+      produto:pv,
+      marca:mv,
+      modelo:modv,
+      descricao:dv,
+      categoria:categoria,
+      preco:preco,
+      estoque:estoque,
+      disponivel:estoque>0,
+      mostrarCatalogo:exist?exist.mostrarCatalogo||false:false,
+      imagemUrl:exist?exist.imagemUrl||"":""
+    };
+
+    if(!exist)prod._status="novo";
+    else if(exist.preco!==preco||exist.estoque!==estoque)prod._status="atualizado";
+    else prod._status="igual";
+
+    newP.push(prod);
   }
-  
-  if(novos===0&&atualizados===0){toast("Nenhum produto válido.","err");return;}
+
+  if(!newP.length){toast("Nenhum produto válido.","err");return;}
+
+  var novos=newP.filter(function(p){return p._status==="novo";}).length;
+  var atualizados=newP.filter(function(p){return p._status==="atualizado";}).length;
+  var iguais=newP.filter(function(p){return p._status==="igual";}).length;
+
+  // Replace ALL local products
+  PRODS=newP;
   markUpd();bldChips();rTbl();rCat();rCatAdm();uDash();rstImport();
-  
-  var msg=[];
-  if(novos>0)msg.push(novos+" novos ✨");
-  if(atualizados>0)msg.push(atualizados+" atualizados 🔄");
-  toast(msg.join(" | "),"ok");
-  
-  // Show summary modal
-  showImportSummary(novos,atualizados);
+
+  // Firebase: delete old products not in new list, save new list
+  if(window.FB&&window.FB.FB_OK){
+    var newIds=newP.map(function(p){return p.id;});
+    window.FB.getDocs(window.FB.collection(window.FB.db,"produtos"))
+      .then(function(snap){
+        snap.docs.forEach(function(d){
+          if(newIds.indexOf(d.id)<0){
+            window.FB.deleteDoc(window.FB.doc(window.FB.db,"produtos",d.id)).catch(function(){});
+          }
+        });
+        newP.forEach(function(p){
+          var data=Object.assign({},p,{updatedAt:window.FB.serverTimestamp()});
+          delete data._status;
+          window.FB.setDoc(window.FB.doc(window.FB.db,"produtos",p.id),data).catch(function(){});
+        });
+      }).catch(function(){
+        newP.forEach(function(p){
+          var data=Object.assign({},p,{updatedAt:window.FB.serverTimestamp()});
+          delete data._status;
+          window.FB.setDoc(window.FB.doc(window.FB.db,"produtos",p.id),data).catch(function(){});
+        });
+      });
+  }
+
+  var msg="";
+  if(novos>0)msg+=novos+" novos ";
+  if(atualizados>0)msg+=atualizados+" atualizados ";
+  if(iguais>0)msg+=iguais+" sem alteração";
+  toast(msg.trim()+"!","ok");
 }
 
-function showImportSummary(novos,atualizados){
-  var t=document.createElement("div");
-  t.style.cssText="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg2);border:1px solid var(--b);border-radius:14px;padding:24px;z-index:9999;min-width:280px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.6)";
-  t.innerHTML="<div style='font-family:Bebas Neue;font-size:1.4rem;letter-spacing:.06em;margin-bottom:16px'>Importação Concluída</div>"
-    +"<div style='display:flex;gap:14px;justify-content:center;margin-bottom:18px'>"
-    +(novos>0?"<div style='text-align:center;padding:12px 18px;background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.25);border-radius:9px'><div style='font-family:Bebas Neue;font-size:2rem;color:var(--grn)'>"+novos+"</div><div style='font-size:.75rem;color:var(--t2)'>Novos ✨</div></div>":"")
-    +(atualizados>0?"<div style='text-align:center;padding:12px 18px;background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.2);border-radius:9px'><div style='font-family:Bebas Neue;font-size:2rem;color:var(--blu)'>"+atualizados+"</div><div style='font-size:.75rem;color:var(--t2)'>Atualizados 🔄</div></div>":"")
-    +"</div>"
-    +"<button onclick='this.parentNode.remove()' style='padding:9px 24px;background:var(--red);border:none;border-radius:7px;color:#fff;font-family:Barlow Condensed;font-weight:700;font-size:.9rem;cursor:pointer;letter-spacing:.06em'>OK</button>";
-  document.body.appendChild(t);
-}
-
-// ── EXPORT ────────────────────────────────────────────────
 function expXlsx(){
   var data=[["Código","Produto","Marca","Modelo","Categoria","Preco","Estoque","Disponível"]];
   PRODS.forEach(function(p){
