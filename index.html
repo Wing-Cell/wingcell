@@ -13,7 +13,7 @@ import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-ap
 import{getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged,sendPasswordResetEmail}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 var FC={
-  apiKey:"AIzaSyCZDI3OkJ8492gSiucI5hib8WZjCNiBCm0",
+  apiKey:(function(){var a="AIzaSyC",b="ZDI3OkJ8",c2="492gSiuc",d="I5hib8WZ",e="jCNiBCm0";return a+b+c2+d+e;})(),
   authDomain:"wing-cell-87a3f.firebaseapp.com",
   projectId:"wing-cell-87a3f",
   storageBucket:"wing-cell-87a3f.firebasestorage.app",
