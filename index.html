@@ -1505,8 +1505,9 @@ function rHist(){
     
     var hdr=document.createElement("div");hdr.className="hist-hdr";
     var tipo=document.createElement("span");tipo.className="hist-tipo "+(h.tipo||"cotacao");
-    tipo.innerHTML='<i class="fa-solid fa-''
-      +(h.tipo==="cotacao"?"file-invoice":"cotacao"==="retirada"?"store":"truck")+'"></i> '+tipoLbl;
+    var icoMap={cotacao:"file-invoice",retirada:"store",envio:"truck"};
+    var ico=icoMap[h.tipo]||"file-invoice";
+    tipo.innerHTML='<i class="fa-solid fa-'+ico+'"></i> '+tipoLbl;
     var date=document.createElement("span");date.className="hist-date";date.textContent=dtStr;
     hdr.appendChild(tipo);hdr.appendChild(date);
     card.appendChild(hdr);
