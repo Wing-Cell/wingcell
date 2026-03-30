@@ -259,8 +259,10 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
 .cadmbd{padding:11px}.cadmnm{font-size:.82rem;font-weight:600;margin-bottom:6px;line-height:1.2}.cadmacts{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
 .cavtog{padding:3px 9px;border-radius:5px;border:1.5px solid var(--b);background:transparent;color:var(--t2);font-size:.7rem;font-weight:700;cursor:pointer;transition:all .16s;text-transform:uppercase;letter-spacing:.04em}
 .cavtog.av{border-color:var(--grn);color:var(--grn);background:var(--grns)}.cavtog.un{border-color:#ef4444;color:#ef4444;background:rgba(239,68,68,.08)}
-.upbtn{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:5px;border:1.5px solid var(--b2);background:transparent;color:var(--t2);font-family:Barlow;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .16s}
+.upbtn{display:flex;align-items:center;gap:5px;padding:6px 11px;border-radius:6px;border:1.5px solid var(--b2);background:transparent;color:var(--t2);font-family:Barlow;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .16s}
 .upbtn:hover{border-color:var(--blu);color:var(--blu);background:var(--blus)}.upbtn input{display:none}
+.upbtn.cam{border-color:rgba(232,28,28,.3);color:var(--red)}.upbtn.cam:hover{border-color:var(--red);background:var(--reds)}
+.upbtn.arq{border-color:rgba(37,99,235,.3);color:var(--blu)}.upbtn.arq:hover{border-color:var(--blu);background:var(--blus)}
 .lkc{display:flex;align-items:center;gap:9px;padding:10px 12px;background:var(--bg2);border:1px solid var(--b);border-radius:9px;margin-bottom:6px}
 .lkic{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.84rem;flex-shrink:0}
 .lkinf{flex:1;min-width:0}.lklb{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:var(--t3)}.lkvl{font-size:.83rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -285,6 +287,10 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
 .loja-link{display:flex;align-items:center;gap:11px;padding:12px;background:var(--bg3);border:1px solid var(--b);border-radius:9px;text-decoration:none;color:var(--t);margin-bottom:7px;transition:all .2s}
 .loja-link:hover{border-color:#25d366;background:rgba(37,211,102,.07)}
 .loja-link-ic{width:36px;height:36px;border-radius:8px;background:rgba(37,211,102,.12);color:#25d366;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
+
+/* Performance */
+.prod-cards,.cpgrid{content-visibility:auto}
+.prod-card{contain:layout style}
 
 /* ── NOVIDADES BANNER ── */
 .novidades-bar{background:linear-gradient(90deg,#1a0000,var(--red),#1a0000);border-bottom:1px solid rgba(232,28,28,.3);overflow:hidden;position:relative;height:36px;display:flex;align-items:center}
@@ -1467,10 +1473,9 @@ function clrFilter(){
 
 // ── TOGGLE SHOW OUT OF STOCK ─────────────────────────────
 window._showFalta=false;
-function togShowFalta(el){
+function togShowFalta(){
   window._showFalta=!window._showFalta;
   rTbl();
-  toast(window._showFalta?"Mostrando produtos em falta":"Ocultando produtos em falta","info");
 }
 
 // ── DEBOUNCED SEARCH ─────────────────────────────────────────
@@ -1480,7 +1485,7 @@ function dbSearch(val,ctx){
   _srchTimer=setTimeout(function(){
     if(ctx===1)rTbl();
     else rCat();
-  },220);
+  },300);
 }
 
 // ── PRODUCTS TABLE ────────────────────────────────────────
@@ -1551,13 +1556,27 @@ function rTbl(){
   var disp=PRODS.filter(function(p){return isAv(p)&&p.preco>0;}).length;
   var sb=document.getElementById("sbar");
   var emFalta=PRODS.filter(function(p){return !isAv(p)&&p.preco>0;}).length;
-  if(sb)sb.innerHTML='<div class="si"><div class="sdot ok"></div>'+disp+' disponíveis</div>'
-    +'<div class="si" style="cursor:pointer" onclick="togShowFalta(this)">'+
-      '<div class="sdot out"></div>'+emFalta+' em falta'
-      +(window._showFalta?' <i class="fa-solid fa-eye" style="font-size:.65rem;color:var(--amb)"></i>':
-        ' <i class="fa-solid fa-eye-slash" style="font-size:.65rem;color:var(--t3)"></i>')
-      +'</div>'
-    +'<div class="si"><i class="fa-solid fa-box" style="color:var(--t3)"></i>&nbsp;'+list.length+' exibidos</div>';
+  if(sb){
+    var dispTxt='<div class="si"><div class="sdot ok"></div>'+disp+' disponíveis</div>';
+    var faltaTxt=emFalta>0
+      ?'<div class="si"><div class="sdot out"></div><span style="color:var(--t3)">'+emFalta+' em falta</span></div>'
+      :"";
+    var totTxt='<div class="si"><i class="fa-solid fa-box" style="color:var(--t3)"></i>&nbsp;'+list.length+' exibidos</div>';
+    var showBtn=emFalta>0
+      ?'<button onclick="togShowFalta()" style="margin-left:auto;padding:3px 10px;border-radius:20px;border:1.5px solid '+
+        (window._showFalta?"var(--amb)":"var(--b2)")+
+        ';background:'+
+        (window._showFalta?"var(--ambs)":"transparent")+
+        ';color:'+
+        (window._showFalta?"var(--amb)":"var(--t3)")+
+        ';font-size:.69rem;font-weight:700;cursor:pointer;font-family:Barlow;white-space:nowrap">'+
+        (window._showFalta
+          ?'<i class="fa-solid fa-eye-slash"></i> Ocultar em falta'
+          :'<i class="fa-solid fa-eye"></i> Ver em falta ('+emFalta+")"
+        )+'</button>'
+      :"";
+    sb.innerHTML=dispTxt+faltaTxt+totTxt+showBtn;
+  }
 }
 
 // ── MOBILE CARDS ─────────────────────────────────────────
@@ -1572,7 +1591,11 @@ function rCards(list,desc){
     grid.appendChild(empty);
     return;
   }
-  list.forEach(function(p){
+  // Show max 80 items on mobile for performance; user can search to narrow down
+  var displayList=list.length>80?list.slice(0,80):list;
+  var hasMore=list.length>80;
+  
+  displayList.forEach(function(p){
     var av=isAv(p);
     var pf=p.preco*(1-(desc||0)/100);
     var card=document.createElement("div");
@@ -1642,6 +1665,13 @@ function rCards(list,desc){
     card.appendChild(top);
     grid.appendChild(card);
   });
+  
+  if(hasMore){
+    var more=document.createElement("div");
+    more.style.cssText="text-align:center;padding:16px;color:var(--t2);font-size:.8rem;background:var(--bg3);border-radius:10px;margin-top:4px";
+    more.innerHTML='<i class="fa-solid fa-search" style="color:var(--red);margin-right:5px"></i>Mostrando 80 de '+list.length+' produtos. Use a busca para filtrar.';
+    grid.appendChild(more);
+  }
 }
 
 // ── PRODUCT MODAL ─────────────────────────────────────────
@@ -2280,13 +2310,33 @@ function rCatAdm(){
     (function(pid){tog.addEventListener("click",function(){togDisp(pid);});})(p.id);
     acts.appendChild(tog);
     // Upload photo label
-    var lbl=document.createElement("label");
-    lbl.className="upbtn";lbl.title=p.mostrarCatalogo?"Adicionar foto":"Ative 'Exibir no Catálogo' primeiro";
-    if(!p.mostrarCatalogo)lbl.style.opacity="0.35";
-    lbl.innerHTML='<i class="fa-solid fa-camera"></i>';
-    var inp=document.createElement("input");inp.type="file";inp.accept="image/*";inp.disabled=!p.mostrarCatalogo;
-    (function(pid,show){inp.addEventListener("change",function(ev){if(show)upImg(ev,pid);});})(p.id,p.mostrarCatalogo);
-    lbl.appendChild(inp);acts.appendChild(lbl);
+    if(p.mostrarCatalogo){
+      // Botão Camera (mobile: abre câmera diretamente)
+      var lblCam=document.createElement("label");
+      lblCam.className="upbtn cam";lblCam.title="Tirar foto com câmera";
+      lblCam.innerHTML='<i class="fa-solid fa-camera"></i>';
+      var inpCam=document.createElement("input");
+      inpCam.type="file";inpCam.accept="image/*";
+      inpCam.setAttribute("capture","environment"); // rear camera
+      (function(pid){inpCam.addEventListener("change",function(ev){upImg(ev,pid);});})(p.id);
+      lblCam.appendChild(inpCam);acts.appendChild(lblCam);
+      
+      // Botão Arquivo (galeria/arquivos)
+      var lblArq=document.createElement("label");
+      lblArq.className="upbtn arq";lblArq.title="Escolher da galeria ou arquivos";
+      lblArq.innerHTML='<i class="fa-solid fa-image"></i>';
+      var inpArq=document.createElement("input");
+      inpArq.type="file";inpArq.accept="image/*";
+      // NO capture attribute = opens gallery/files picker
+      (function(pid){inpArq.addEventListener("change",function(ev){upImg(ev,pid);});})(p.id);
+      lblArq.appendChild(inpArq);acts.appendChild(lblArq);
+    } else {
+      var lblDis=document.createElement("label");
+      lblDis.className="upbtn";lblDis.title="Ative 'Exibir no Catálogo' primeiro";
+      lblDis.style.opacity="0.35";
+      lblDis.innerHTML='<i class="fa-solid fa-camera"></i>';
+      acts.appendChild(lblDis);
+    }
     // Remove image button
     if(p.imagemUrl){
       var rmbtn=document.createElement("button");rmbtn.className="iico";rmbtn.title="Remover foto";
@@ -2307,27 +2357,72 @@ function togDisp(id){
 }
 function upImg(e,id){
   var file=e.target.files[0];if(!file)return;
-  var cfg=window.CLD;
-  if(!cfg||cfg.cloudName==="SEU_CLOUD_NAME"){
-    var url=URL.createObjectURL(file);
+  
+  // Reset input so same file can be selected again
+  e.target.value="";
+  
+  toast("Processando foto...","info");
+  
+  // Compress image before upload (max 800px, quality 0.85)
+  compressImg(file,800,0.85,function(blob,localUrl){
+    var cfg=window.CLD;
+    
+    // Show preview immediately (local URL)
     var i=PRODS.findIndex(function(p){return p.id===id;});
-    if(i>=0)PRODS[i].imagemUrl=url;
-    rCatAdm();rTbl();rCat();toast("Foto atualizada.","ok");return;
-  }
-  toast("Enviando foto...","info");
-  var fd=new FormData();fd.append("file",file);fd.append("upload_preset",cfg.uploadPreset);
-  fetch("https://api.cloudinary.com/v1_1/"+cfg.cloudName+"/image/upload",{method:"POST",body:fd})
-    .then(function(r){return r.json();})
-    .then(function(data){
-      if(!data.secure_url)throw new Error("Upload failed");
-      var url=data.secure_url;
-      var i=PRODS.findIndex(function(p){return p.id===id;});
-      if(i>=0)PRODS[i].imagemUrl=url;
-      if(window.FB&&window.FB.FB_OK){
-        window.FB.updateDoc(window.FB.doc(window.FB.db,"produtos",id),{imagemUrl:url}).catch(function(){});
+    if(i>=0){PRODS[i].imagemUrl=localUrl;}
+    rCatAdm();rTbl();rCat();
+    
+    if(!cfg||cfg.cloudName==="SEU_CLOUD_NAME"){
+      toast("Foto atualizada (local).","ok");return;
+    }
+    
+    // Upload compressed to Cloudinary
+    var fd=new FormData();
+    fd.append("file",blob,"foto.jpg");
+    fd.append("upload_preset",cfg.uploadPreset);
+    
+    fetch("https://api.cloudinary.com/v1_1/"+cfg.cloudName+"/image/upload",{method:"POST",body:fd})
+      .then(function(r){return r.json();})
+      .then(function(data){
+        if(!data.secure_url)throw new Error("Upload failed");
+        var url=data.secure_url;
+        var idx=PRODS.findIndex(function(p){return p.id===id;});
+        if(idx>=0)PRODS[idx].imagemUrl=url;
+        if(window.FB&&window.FB.FB_OK){
+          window.FB.updateDoc(window.FB.doc(window.FB.db,"produtos",id),{imagemUrl:url}).catch(function(){});
+        }
+        rCatAdm();rTbl();rCat();
+        toast("Foto enviada!","ok");
+      }).catch(function(){
+        // Keep local URL as fallback
+        toast("Foto salva localmente (sem internet).","info");
+      });
+  });
+}
+
+function compressImg(file,maxSize,quality,callback){
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var img=new Image();
+    img.onload=function(){
+      var w=img.width,h=img.height;
+      // Scale down if needed
+      if(w>maxSize||h>maxSize){
+        if(w>h){h=Math.round(h*maxSize/w);w=maxSize;}
+        else{w=Math.round(w*maxSize/h);h=maxSize;}
       }
-      rCatAdm();rTbl();rCat();toast("Foto enviada!","ok");
-    }).catch(function(){toast("Erro no upload.","err");});
+      var canvas=document.createElement("canvas");
+      canvas.width=w;canvas.height=h;
+      var ctx=canvas.getContext("2d");
+      ctx.drawImage(img,0,0,w,h);
+      var localUrl=canvas.toDataURL("image/jpeg",quality);
+      canvas.toBlob(function(blob){
+        callback(blob,localUrl);
+      },"image/jpeg",quality);
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
 }
 function rmImg(id){
   var i=PRODS.findIndex(function(p){return p.id===id;});if(i<0)return;
