@@ -754,12 +754,7 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
       <div class="asec" id="as-cataadm">
         <div class="stit">Catálogo <em>— Visibilidade e Fotos</em></div>
         <div id="cld-status" style="padding:8px 12px;border-radius:7px;font-size:.77rem;margin-bottom:8px;display:flex;align-items:center;gap:7px;flex-wrap:wrap"></div>
-        <div style="display:flex;align-items:center;gap:7px;margin-bottom:12px;flex-wrap:wrap">
-          <span style="font-size:.74rem;color:var(--t2);white-space:nowrap">Upload Preset:</span>
-          <input id="cld-preset-inp" style="flex:1;min-width:120px;padding:5px 9px;border-radius:6px;border:1.5px solid var(--b);background:var(--bg3);color:var(--t);font-size:.78rem" placeholder="ml_default">
-          <button onclick="saveCldPreset()" style="padding:5px 12px;background:var(--red);border:none;border-radius:6px;color:#fff;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap">Salvar</button>
-          <a href="https://cloudinary.com/console/settings/upload" target="_blank" style="font-size:.72rem;color:var(--blu)">Configurar Cloudinary →</a>
-        </div>
+
         <p style="color:var(--t2);font-size:.83rem;margin-bottom:14px;line-height:1.5">
           O catálogo é uma extensão da tabela de preços. Ative <strong style="color:var(--grn)">Exibir no Catálogo</strong> 
           para que o produto apareça na aba Catálogo do cliente. Produtos sem essa opção aparecem apenas na tabela de preços.
@@ -1586,34 +1581,35 @@ function saveCldPreset(){
 function checkCldStatus(){
   var el=document.getElementById("cld-status");if(!el)return;
   var cfg=window.CLD;
-  // Fill preset input
   var pi=document.getElementById("cld-preset-inp");if(pi)pi.value=cfg.uploadPreset||"";
-  if(!cfg||cfg.cloudName==="SEU_CLOUD_NAME"){
-    el.style.cssText="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#ef4444";
-    el.innerHTML='<i class="fa-solid fa-circle-xmark"></i> Cloudinary não configurado. Fotos salvas apenas localmente.';
-    return;
-  }
-  // Quick test upload with tiny 1x1 pixel
-  var testB64="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
-  var fd=new FormData();fd.append("file",testB64);fd.append("upload_preset",cfg.uploadPreset);
   el.style.cssText="background:var(--bg3);border:1px solid var(--b);color:var(--t2)";
   el.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Verificando Cloudinary...';
+  // Test with 1x1 gif
+  var testB64="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+  var byteStr=atob(testB64.split(",")[1]);
+  var arr=new Uint8Array(byteStr.length);
+  for(var i=0;i<byteStr.length;i++)arr[i]=byteStr.charCodeAt(i);
+  var blob=new Blob([arr],{type:"image/gif"});
+  var fd=new FormData();fd.append("file",blob,"test.gif");fd.append("upload_preset",cfg.uploadPreset);
   fetch("https://api.cloudinary.com/v1_1/"+cfg.cloudName+"/image/upload",{method:"POST",body:fd})
     .then(function(r){return r.json();})
     .then(function(data){
       if(data.secure_url){
         el.style.cssText="background:rgba(22,163,74,.08);border:1px solid rgba(22,163,74,.2);color:var(--grn)";
-        el.innerHTML='<i class="fa-solid fa-circle-check"></i> Cloudinary conectado — upload de fotos funcionando!';
+        el.innerHTML='<i class="fa-solid fa-circle-check"></i> Cloudinary OK — upload funcionando!';
       }else{
-        el.style.cssText="background:rgba(217,119,6,.08);border:1px solid rgba(217,119,6,.2);color:var(--amb)";
-        el.innerHTML='<i class="fa-solid fa-triangle-exclamation"></i> Cloudinary: erro — ';
-        el.innerHTML+=(data.error?data.error.message:"preset não autorizado. Configure como Unsigned no Cloudinary.");
-        el.innerHTML+=' <a href="https://cloudinary.com/console/settings/upload" target="_blank" style="color:var(--blu);font-weight:600;margin-left:4px">Configurar →</a>';
+        el.style.cssText="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#ef4444";
+        var msg=data.error?data.error.message:"Erro desconhecido";
+        el.innerHTML='<i class="fa-solid fa-circle-xmark"></i> Erro: '+msg;
+        if(msg.indexOf("whitelist")>=0||msg.indexOf("preset")>=0){
+          el.innerHTML+='. Preset precisa ser <b>Unsigned</b>. ';
+          el.innerHTML+='<a href="https://cloudinary.com/console/settings/upload" target="_blank" style="color:var(--blu);font-weight:700">Corrigir →</a>';
+        }
       }
     })
     .catch(function(){
       el.style.cssText="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#ef4444";
-      el.innerHTML='<i class="fa-solid fa-wifi"></i> Sem acesso ao Cloudinary. Verifique sua internet.';
+      el.innerHTML='<i class="fa-solid fa-wifi"></i> Sem acesso. Verifique sua internet.';
     });
 }
 
@@ -2861,23 +2857,27 @@ function upImg(e,id){
 }
 
 function uploadToCloudinary(dataUrl,cfg,onOk,onErr){
-  // Send as JSON body - avoids CORS/multipart issues on mobile
+  if(!cfg||!cfg.cloudName||cfg.cloudName==="SEU_CLOUD_NAME"){
+    onErr("Cloudinary não configurado");return;
+  }
+  // Convert base64 to blob for upload
+  var byteStr=atob(dataUrl.split(",")[1]);
+  var mime="image/jpeg";
+  var arr=new Uint8Array(byteStr.length);
+  for(var i=0;i<byteStr.length;i++)arr[i]=byteStr.charCodeAt(i);
+  var blob=new Blob([arr],{type:mime});
   var fd=new FormData();
-  fd.append("file",dataUrl);
+  fd.append("file",blob,"foto.jpg");
   fd.append("upload_preset",cfg.uploadPreset);
   fd.append("folder","wingcell");
-  
-  fetch("https://api.cloudinary.com/v1_1/"+cfg.cloudName+"/image/upload",{
-    method:"POST",
-    body:fd
-  })
-  .then(function(r){return r.json();})
-  .then(function(data){
-    if(data.error){onErr(data.error.message);return;}
-    if(!data.secure_url){onErr("Sem URL");return;}
-    onOk(data.secure_url);
-  })
-  .catch(function(e){onErr(e.message||"Erro de rede");});
+  fetch("https://api.cloudinary.com/v1_1/"+cfg.cloudName+"/image/upload",{method:"POST",body:fd})
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(data.error){onErr(data.error.message);return;}
+      if(!data.secure_url){onErr("Sem URL retornada");return;}
+      onOk(data.secure_url);
+    })
+    .catch(function(e){onErr(e.message||"Erro de rede");});
 }
 
 function compressImg(file,maxSize,quality,callback){
