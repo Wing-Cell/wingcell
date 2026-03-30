@@ -667,7 +667,7 @@ var CAT_KW={
   "Peliculas":["pelicula","protetor tela"],
   "Lentes":["lente","lente cam","lente camera"]
 };
-var CATS=["Telas","Baterias","Flex Placa","Flex Power","Biometrias","Auto Falantes","Peliculas","Lentes"];
+var CATS=["Telas","Baterias","Películas","Tampas","Placas","Flex / Botões","Carcaças","Gavetas SIM","Lentes","Biometria","Auto Falantes","Fones / Auriculares","Carregadores","Cabos","Dock / Conector","Lentes","Ferramentas","Materiais","CI / Chips","Adaptadores","Outros"];
 var ROLES=["produto","marca","modelo","categoria","preco","estoque","descricao","codigo","ignorar"];
 var PRODS=[
   {id:"p1",produto:"Galaxy S23 Ultra",marca:"Samsung",modelo:"S23U",categoria:"Telas",preco:489.90,estoque:5,disponivel:true,mostrarCatalogo:false,imagemUrl:"",descricao:"Display OLED Original"},
@@ -1030,7 +1030,18 @@ function NL(){return String.fromCharCode(10);}
 // ── CHIPS ─────────────────────────────────────────────────
 function bldChips(){
   var a=["Todos"].concat(CATS.filter(function(c){return PRODS.some(function(p){return p.categoria===c;});}));
+  var novCount=PRODS.filter(function(p){return p.novidade;}).length;
   var el=document.getElementById("chips1");if(!el)return;el.innerHTML="";
+  // Add Novidades chip first if there are new products
+  if(novCount>0){
+    var dnov=document.createElement("div");
+    dnov.className="cf"+(catA==="__novidades__"?" on":"");
+    dnov.innerHTML="✨ Novidades ("+novCount+")";
+    dnov.style.cssText="border-color:var(--grn);color:var(--grn)";
+    if(catA==="__novidades__")dnov.style.cssText="background:var(--grn);color:#fff";
+    dnov.addEventListener("click",function(){setCat("__novidades__",dnov,1);});
+    el.appendChild(dnov);
+  }
   a.forEach(function(c){
     var d=document.createElement("div");
     d.className="cf"+(c===catA?" on":"");
@@ -1063,8 +1074,8 @@ function rTbl(){
   var q=srchEl?srchEl.value.toLowerCase():"";
   var desc=me?me.desconto||0:0;
   var list=PRODS.filter(function(p){
-    return(catA==="Todos"||p.categoria===catA)&&
-      (!q||((p.produto+" "+p.marca+" "+(p.modelo||"")+" "+p.categoria).toLowerCase().indexOf(q)>=0));
+    var catOk=catA==="Todos"||(catA==="__novidades__"?p.novidade:p.categoria===catA);
+    return catOk&&(!q||((p.produto+" "+p.marca+" "+(p.modelo||"")+" "+p.categoria).toLowerCase().indexOf(q)>=0));
   });
   var tb=document.getElementById("ptb");if(!tb)return;tb.innerHTML="";
   if(!list.length){
@@ -1081,7 +1092,10 @@ function rTbl(){
       }
       // Build cells
       var td1=document.createElement("td");
-      var nm=document.createElement("div");nm.className="pnm";nm.textContent=p.produto;td1.appendChild(nm);
+      var nm=document.createElement("div");nm.className="pnm";
+      nm.textContent=p.produto;
+      if(p.novidade){var nv=document.createElement("span");nv.style.cssText="margin-left:6px;padding:1px 6px;background:rgba(22,163,74,.15);color:var(--grn);border-radius:4px;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border:1px solid rgba(22,163,74,.3)";nv.textContent="NOVO";nm.appendChild(nv);}
+      td1.appendChild(nm);
       if(p.modelo){var md=document.createElement("div");md.className="pmd";md.textContent=p.modelo;td1.appendChild(md);}
       var td2=document.createElement("td");td2.style.cssText="color:var(--t2);font-size:.8rem";td2.textContent=p.marca||"-";
       var td3=document.createElement("td");
@@ -1181,7 +1195,9 @@ function rCat(){
       var ph=document.createElement("div");ph.className="cpph";ph.innerHTML="&#128230;";d.appendChild(ph);
     }
     var bd=document.createElement("div");bd.className="cpbd";
-    var nm=document.createElement("div");nm.className="cpnm";nm.textContent=p.produto;bd.appendChild(nm);
+    var nm=document.createElement("div");nm.className="cpnm";nm.textContent=p.produto;
+    if(p.novidade){var nv2=document.createElement("span");nv2.style.cssText="display:inline-block;margin-top:2px;padding:1px 5px;background:rgba(22,163,74,.15);color:var(--grn);border-radius:3px;font-size:.6rem;font-weight:700;letter-spacing:.05em;border:1px solid rgba(22,163,74,.25)";nv2.textContent="NOVO";nm.appendChild(nv2);}
+    bd.appendChild(nm);
     var pr=document.createElement("div");pr.className="cppr"+(av?"":" g");pr.textContent=av?fmtP(pf):"Em Falta";bd.appendChild(pr);
     d.appendChild(bd);grid.appendChild(d);
   });
@@ -1354,15 +1370,15 @@ function quickQ(p){
 
 // ── EXCEL IMPORT ──────────────────────────────────────────
 function detRole(h){
-  var s=String(h).toLowerCase().trim();
-  if(/produto|item|peca|nome prod/.test(s))return"produto";
+  var s=String(h).toLowerCase().trim().replace(/[áàãâ]/g,"a").replace(/[éê]/g,"e").replace(/[íî]/g,"i").replace(/[óôõ]/g,"o").replace(/[úû]/g,"u").replace(/[ç]/g,"c");
+  if(/nome.prod|^produto|^item|^peca|^descri/.test(s))return"produto";
+  if(/^cod|codigo.prod|ref|sku/.test(s))return"codigo";
   if(/marca|brand|fabricante/.test(s))return"marca";
   if(/modelo|model/.test(s))return"modelo";
   if(/categ|tipo|grupo/.test(s))return"categoria";
-  if(/preco|valor|price|custo|venda/.test(s))return"preco";
+  if(/prec|valor|price|custo|venda/.test(s))return"preco";
   if(/estoque|qtd|quant|stock|qty|saldo/.test(s))return"estoque";
-  if(/descri|obs|note/.test(s))return"descricao";
-  if(/cod|ref|sku/.test(s))return"codigo";
+  if(/obs|note|descricao/.test(s))return"descricao";
   return"ignorar";
 }
 function hFile(file,isCli){
@@ -1478,41 +1494,129 @@ function rstImport(){
   var dz1=document.getElementById("dz1");if(dz1)dz1.style.display="";
 }
 function guessCat(txt){
-  var t=txt.toLowerCase();
-  for(var cat in CAT_KW){
-    if(CAT_KW[cat].some(function(k){return t.indexOf(k)>=0;}))return cat;
-  }
-  return CATS[0];
+  var n=txt.toUpperCase();
+  if(/^TELA|^LCD/.test(n)) return "Telas";
+  if(/^BAT/.test(n)) return "Baterias";
+  if(/^PEL[IÍ]CULA/.test(n)) return "Películas";
+  if(/^TAMPA/.test(n)) return "Tampas";
+  if(/^PLACA/.test(n)) return "Placas";
+  if(/^FLEX|^BOT[AÃ]O/.test(n)) return "Flex / Botões";
+  if(/^CARCA[CÇ]A/.test(n)) return "Carcaças";
+  if(/^GAVETA/.test(n)) return "Gavetas SIM";
+  if(/^LENTE/.test(n)) return "Lentes";
+  if(/^BIOMETRIA/.test(n)) return "Biometria";
+  if(/^ALTO FALANTE/.test(n)) return "Auto Falantes";
+  if(/^FONE/.test(n)) return "Fones / Auriculares";
+  if(/^CARREGADOR|^CARR/.test(n)) return "Carregadores";
+  if(/^CABO/.test(n)) return "Cabos";
+  if(/^DOCK/.test(n)) return "Dock / Conector";
+  if(/^CI /.test(n)) return "CI / Chips";
+  if(/^SUPORTE/.test(n)) return "Suportes";
+  if(/^CAPA/.test(n)) return "Capas";
+  if(/^ANTENA/.test(n)) return "Antenas";
+  if(/^CHAVE|^ESPATULA|^ESP[AÁ]TULA|^VENTOSA/.test(n)) return "Ferramentas";
+  if(/^ALCOOL|^[AÁ]LCOOL|^COLA|^FLUXO|^FITA|^SOLDA|^ESPONJA/.test(n)) return "Materiais";
+  if(/^POWER|^FONTE/.test(n)) return "Energia";
+  if(/^ADAPTADOR/.test(n)) return "Adaptadores";
+  return "Outros";
 }
 function doImport(){
   if(!rawRows.length)return;
   var h=rawRows[0],rIdx={};
   h.forEach(function(_,i){var r=colMap[i]||"ignorar";if(r!=="ignorar"&&!rIdx[r])rIdx[r]=i;});
-  var newP=[];
+  
+  var novos=0,atualizados=0,ignorados=0;
+  var agora=Date.now();
+  
+  // Build index of existing products by name and by codigo
+  var existByNome={};
+  var existByCod={};
+  PRODS.forEach(function(p){
+    existByNome[p.produto.toUpperCase().trim()]=p;
+    if(p.codigo)existByCod[String(p.codigo)]=p;
+  });
+  
   for(var r=1;r<rawRows.length;r++){
     var row=rawRows[r];
     if(row.every(function(v){return v===""||v===null||v===undefined;}))continue;
     var getV=function(role){return rIdx[role]!==undefined?row[rIdx[role]]:"";}
-    var pv=String(getV("produto")||row[0]||"").trim();
+    
+    var pv=String(getV("produto")||row[1]||row[0]||"").trim();
     if(!pv)continue;
+    
+    var codigoRaw=String(getV("codigo")||row[0]||"").trim();
     var mv=String(getV("marca")).trim();
     var modv=String(getV("modelo")).trim();
     var dv=String(getV("descricao")).trim();
     var preco=parseFloat(String(getV("preco")).replace(",",".").replace(/[^0-9.]/g,""))||0;
     var estoque=parseInt(String(getV("estoque")).replace(/[^0-9]/g,""))||0;
     var catRaw=String(getV("categoria")).trim();
-    var categoria=catRaw&&CATS.indexOf(catRaw)>=0?catRaw:guessCat(pv+" "+mv+" "+catRaw);
-    var id="p"+Date.now()+r;
-    var prod={id:id,produto:pv,marca:mv,modelo:modv,descricao:dv,categoria:categoria,preco:preco,estoque:estoque,disponivel:estoque>0,imagemUrl:""};
-    newP.push(prod);
-    if(window.FB&&window.FB.FB_OK){
-      window.FB.setDoc(window.FB.doc(window.FB.db,"produtos",id),
-        Object.assign({},prod,{updatedAt:window.FB.serverTimestamp()})).catch(function(){});
+    var categoria=catRaw&&CATS.indexOf(catRaw)>=0?catRaw:guessCat(pv);
+    
+    // Check if product already exists (by code or by name)
+    var existing=existByCod[codigoRaw]||existByNome[pv.toUpperCase()];
+    
+    if(existing){
+      // UPDATE existing product - preserve imagemUrl, mostrarCatalogo
+      var changed=existing.preco!==preco||existing.estoque!==estoque;
+      existing.preco=preco;
+      existing.estoque=estoque;
+      existing.disponivel=estoque>0;
+      existing.categoria=categoria;
+      if(mv)existing.marca=mv;
+      if(modv)existing.modelo=modv;
+      existing.codigo=codigoRaw;
+      existing.novidade=false;
+      if(changed&&window.FB&&window.FB.FB_OK){
+        window.FB.updateDoc(window.FB.doc(window.FB.db,"produtos",existing.id),{
+          preco:preco,estoque:estoque,disponivel:estoque>0,
+          categoria:categoria,codigo:codigoRaw,novidade:false,
+          updatedAt:window.FB.serverTimestamp()
+        }).catch(function(){});
+      }
+      atualizados++;
+    }else{
+      // NEW product
+      var id="p"+agora+r;
+      var prod={
+        id:id,codigo:codigoRaw,produto:pv,marca:mv,modelo:modv,
+        descricao:dv,categoria:categoria,preco:preco,estoque:estoque,
+        disponivel:estoque>0,imagemUrl:"",mostrarCatalogo:false,
+        novidade:true,createdAt:agora
+      };
+      PRODS.push(prod);
+      existByNome[pv.toUpperCase()]=prod;
+      if(codigoRaw)existByCod[codigoRaw]=prod;
+      if(window.FB&&window.FB.FB_OK){
+        window.FB.setDoc(window.FB.doc(window.FB.db,"produtos",id),
+          Object.assign({},prod,{updatedAt:window.FB.serverTimestamp()})).catch(function(){});
+      }
+      novos++;
     }
   }
-  if(!newP.length){toast("Nenhum produto válido.","err");return;}
-  PRODS=newP;markUpd();bldChips();rTbl();rCat();rCatAdm();uDash();rstImport();
-  toast(newP.length+" produtos importados!","ok");
+  
+  if(novos===0&&atualizados===0){toast("Nenhum produto válido.","err");return;}
+  markUpd();bldChips();rTbl();rCat();rCatAdm();uDash();rstImport();
+  
+  var msg=[];
+  if(novos>0)msg.push(novos+" novos ✨");
+  if(atualizados>0)msg.push(atualizados+" atualizados 🔄");
+  toast(msg.join(" | "),"ok");
+  
+  // Show summary modal
+  showImportSummary(novos,atualizados);
+}
+
+function showImportSummary(novos,atualizados){
+  var t=document.createElement("div");
+  t.style.cssText="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg2);border:1px solid var(--b);border-radius:14px;padding:24px;z-index:9999;min-width:280px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.6)";
+  t.innerHTML="<div style='font-family:Bebas Neue;font-size:1.4rem;letter-spacing:.06em;margin-bottom:16px'>Importação Concluída</div>"
+    +"<div style='display:flex;gap:14px;justify-content:center;margin-bottom:18px'>"
+    +(novos>0?"<div style='text-align:center;padding:12px 18px;background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.25);border-radius:9px'><div style='font-family:Bebas Neue;font-size:2rem;color:var(--grn)'>"+novos+"</div><div style='font-size:.75rem;color:var(--t2)'>Novos ✨</div></div>":"")
+    +(atualizados>0?"<div style='text-align:center;padding:12px 18px;background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.2);border-radius:9px'><div style='font-family:Bebas Neue;font-size:2rem;color:var(--blu)'>"+atualizados+"</div><div style='font-size:.75rem;color:var(--t2)'>Atualizados 🔄</div></div>":"")
+    +"</div>"
+    +"<button onclick='this.parentNode.remove()' style='padding:9px 24px;background:var(--red);border:none;border-radius:7px;color:#fff;font-family:Barlow Condensed;font-weight:700;font-size:.9rem;cursor:pointer;letter-spacing:.06em'>OK</button>";
+  document.body.appendChild(t);
 }
 
 // ── EXPORT ────────────────────────────────────────────────
