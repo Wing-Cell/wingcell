@@ -1606,8 +1606,8 @@ function checkCldStatus(){
         el.innerHTML='<i class="fa-solid fa-circle-check"></i> Cloudinary conectado — upload de fotos funcionando!';
       }else{
         el.style.cssText="background:rgba(217,119,6,.08);border:1px solid rgba(217,119,6,.2);color:var(--amb)";
-        el.innerHTML='<i class="fa-solid fa-triangle-exclamation"></i> Cloudinary: erro — ''
-          +(data.error?data.error.message:"preset não autorizado. Configure como Unsigned no Cloudinary.");
+        el.innerHTML='<i class="fa-solid fa-triangle-exclamation"></i> Cloudinary: erro — ';
+        el.innerHTML+=(data.error?data.error.message:"preset não autorizado. Configure como Unsigned no Cloudinary.");
         el.innerHTML+=' <a href="https://cloudinary.com/console/settings/upload" target="_blank" style="color:var(--blu);font-weight:600;margin-left:4px">Configurar →</a>';
       }
     })
