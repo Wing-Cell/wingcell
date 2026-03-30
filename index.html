@@ -473,6 +473,7 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
     <button class="nb" id="nb-catalogo" onclick="go('catalogo')"><i class="fa-solid fa-th-large"></i><span class="nbl">Catálogo</span></button>
     <button class="nb" id="nb-contato" onclick="go('contato')"><i class="fa-solid fa-headset"></i><span class="nbl">Contato</span></button>
     <button class="nb" id="nb-admin" onclick="go('admin')" style="display:none"><i class="fa-solid fa-shield-halved"></i><span class="nbl">Admin</span></button>
+    <button class="nb" id="nb-preview" onclick="togAdminPreview()" style="display:none;background:rgba(217,119,6,.15);border:1px solid rgba(217,119,6,.3);color:var(--amb)" title="Visualizar como cliente"><i class="fa-solid fa-eye"></i><span class="nbl">Preview</span></button>
   </nav>
   <div class="tbr">
     <div class="uchip" id="uchip" style="display:none"><i class="fa-solid fa-circle-check"></i><span id="chipnm">-</span></div>
@@ -494,7 +495,7 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
       </span>
     </div>
     <button class="thbtn-lg" onclick="togTh()" id="lgthbtn">
-      <i class="fa-solid fa-moon" id="lgthico"></i><span id="lgthtxt">Modo Escuro</span>
+<i class="fa-solid fa-moon"></i><span>Modo Escuro</span>
     </button>
   </div>
   <div class="lbox">
@@ -510,6 +511,10 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
       <div id="fc">
         <label class="fl">Código do Cliente</label>
         <input class="fi" type="text" id="icod" placeholder="Ex: 0001" maxlength="4" autocomplete="off" inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/[^0-9]/g,'')" onkeydown="if(event.key==='Enter')doLg()">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:13px;margin-top:-8px">
+          <input type="checkbox" id="chk-remember" style="accent-color:var(--red);width:15px;height:15px;cursor:pointer">
+          <label for="chk-remember" style="font-size:.76rem;color:var(--t2);cursor:pointer">Lembrar meu código</label>
+        </div>
         <div id="swrap" style="display:none">
           <label class="fl">Senha</label>
           <input class="fi lo" type="password" id="isen" placeholder="Senha do cliente" onkeydown="if(event.key==='Enter')doLg()">
@@ -775,6 +780,18 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
         <div class="icards" id="dashcards"></div>
         <div style="font-family:'Barlow Condensed';font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.09em;color:var(--t2);margin-bottom:10px">Por Categoria</div>
         <div id="dashcats" style="display:flex;flex-wrap:wrap;gap:7px"></div>
+        
+        <div style="margin-top:24px;padding:16px;background:var(--bg3);border-radius:10px;border-left:3px solid var(--amb)">
+          <div style="font-family:'Barlow Condensed';font-weight:700;font-size:.85rem;text-transform:uppercase;letter-spacing:.07em;color:var(--amb);margin-bottom:12px"><i class="fa-solid fa-lightbulb"></i> Melhorias Sugeridas</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:.8rem;color:var(--t2)">
+            <div><i class="fa-solid fa-plug" style="color:var(--red);width:16px"></i> <strong>Integração Shop 9</strong> — Sincronizar estoque em tempo real por filial</div>
+            <div><i class="fa-solid fa-bell" style="color:var(--amb);width:16px"></i> <strong>Notificações Push</strong> — Avisar clientes quando preços mudarem</div>
+            <div><i class="fa-solid fa-chart-line" style="color:var(--grn);width:16px"></i> <strong>Relatório de Pedidos</strong> — Ver quais produtos mais cotados</div>
+            <div><i class="fa-solid fa-users-gear" style="color:var(--blu);width:16px"></i> <strong>Grupos de Clientes</strong> — Desconto por grupo/segmento</div>
+            <div><i class="fa-solid fa-qrcode" style="color:var(--t2);width:16px"></i> <strong>QR Code de Produto</strong> — Cliente escaneia e já abre a cotação</div>
+            <div><i class="fa-solid fa-history" style="color:var(--t2);width:16px"></i> <strong>Histórico de Cotações</strong> — Ver pedidos enviados por cliente</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -902,35 +919,34 @@ function rstSess(){
 
 // ── THEME ─────────────────────────────────────────────────
 function togTh(){
-  var cur=document.documentElement.getAttribute("data-theme");
+  var cur=document.documentElement.getAttribute("data-theme")||"dark";
   var n=cur==="dark"?"light":"dark";
   document.documentElement.setAttribute("data-theme",n);
   localStorage.setItem("wc_theme",n);
-  updateThemeUI(n);
+  _applyThemeUI(n);
 }
-function updateThemeUI(t){
-  var isDark=t==="dark";
-  var moonClass="fa-solid fa-moon";var sunClass="fa-solid fa-sun";
+function _applyThemeUI(t){
+  var dark=t==="dark";
   // Topbar button
   var tb=document.getElementById("thbtn");
-  if(tb)tb.innerHTML=isDark?'<i class="'+moonClass+'"></i>':' <i class="'+sunClass+'"></i>';
-  // Login page icon (don't recreate the whole button - just update icon and text)
-  var ico=document.getElementById("lgthico");
-  if(ico)ico.className=isDark?moonClass:sunClass;
-  var lbl=document.getElementById("lgthtxt");
-  if(lbl)lbl.textContent=isDark?"Modo Escuro":"Modo Claro";
+  if(tb){
+    tb.innerHTML=dark?'<i class="fa-solid fa-moon"></i>':' <i class="fa-solid fa-sun"></i>';
+  }
+  // Login page button - recreate to preserve onclick
+  var lgbtn=document.getElementById("lgthbtn");
+  if(lgbtn){
+    lgbtn.innerHTML=(dark?'<i class="fa-solid fa-moon"></i>':' <i class="fa-solid fa-sun"></i>')
+      +'<span>'+(dark?"Modo Escuro":"Modo Claro")+'</span>';
+  }
 }
-
+// Init theme
 (function(){
-  var t=localStorage.getItem("wc_theme")||(window.matchMedia("(prefers-color-scheme:light)").matches?"light":"dark");
+  var saved=localStorage.getItem("wc_theme");
+  var t=saved||(window.matchMedia&&window.matchMedia("(prefers-color-scheme:light)").matches?"light":"dark");
   document.documentElement.setAttribute("data-theme",t);
-  var tb=document.getElementById("thbtn");
-  if(tb)tb.innerHTML=t==="dark"?'<i class="fa-solid fa-moon"></i>':'<i class="fa-solid fa-sun"></i>';
-  var ico=document.getElementById("lgthico");
-  var lbl=document.getElementById("lgthtxt");
-  if(ico)ico.className=t==="dark"?"fa-solid fa-moon":"fa-solid fa-sun";
-  if(lbl)lbl.textContent=t==="dark"?"Modo Escuro":"Modo Claro";
+  document.addEventListener("DOMContentLoaded",function(){_applyThemeUI(t);});
 })();
+
 
 // ── SERVER STATUS ─────────────────────────────────────────
 function checkSrv(){
@@ -964,6 +980,17 @@ function checkSrv(){
 setTimeout(checkSrv,1500);
 
 // ── LOGIN TABS ────────────────────────────────────────────
+// Load remembered login
+(function(){
+  var rem=localStorage.getItem("wc_remember_cod");
+  if(rem){
+    var el=document.getElementById("icod");
+    var chk=document.getElementById("chk-remember");
+    if(el)el.value=rem;
+    if(chk)chk.checked=true;
+  }
+})();
+
 function swTab(t){
   document.getElementById("fc").style.display=t==="c"?"":"none";
   document.getElementById("fa").style.display=t==="a"?"":"none";
@@ -1020,6 +1047,10 @@ function doLg(){
       if(c.senha!==sen){showErr("Senha incorreta.");return;}
     }
     me=Object.assign({codigo:cod},c);
+    // Remember code if checkbox checked
+    var chk=document.getElementById("chk-remember");
+    if(chk&&chk.checked)localStorage.setItem("wc_remember_cod",cod);
+    else localStorage.removeItem("wc_remember_cod");
     afterLg();
   }
   if(window.FB&&window.FB.FB_OK){
@@ -1124,6 +1155,8 @@ function afterLg(){
   if(me.isAdmin){
     var nbadm=document.getElementById("nb-admin");
     if(nbadm)nbadm.style.display="";
+    var nbprev=document.getElementById("nb-preview");
+    if(nbprev)nbprev.style.display="";
   }else{
     var crtbtn=document.getElementById("crtbtn");
     if(crtbtn)crtbtn.style.display="flex";
@@ -1136,6 +1169,25 @@ function afterLg(){
 }
 
 // ── LOGOUT ────────────────────────────────────────────────
+function togAdminPreview(){
+  var btn=document.getElementById("nb-preview");
+  var isPreview=btn&&btn.classList.contains("on");
+  if(isPreview){
+    // Back to admin
+    if(btn)btn.classList.remove("on");
+    if(btn)btn.innerHTML='<i class="fa-solid fa-eye"></i><span class="nbl">Preview</span>';
+    go("admin");
+    toast("Voltou ao Admin","ok");
+  }else{
+    // Switch to client view
+    if(btn)btn.classList.add("on");
+    if(btn)btn.innerHTML='<i class="fa-solid fa-eye-slash"></i><span class="nbl">Admin View</span>';
+    bldChips();rTbl();
+    go("precos");
+    toast("Visualizando como cliente","info");
+  }
+}
+
 function doOut(){
   if(window.FB&&window.FB.auth)window.FB.signOut(window.FB.auth).catch(function(){});
   me=null;meAdm=null;clearTimeout(sessTimer);
@@ -2310,33 +2362,23 @@ function rCatAdm(){
     (function(pid){tog.addEventListener("click",function(){togDisp(pid);});})(p.id);
     acts.appendChild(tog);
     // Upload photo label
-    if(p.mostrarCatalogo){
-      // Botão Camera (mobile: abre câmera diretamente)
-      var lblCam=document.createElement("label");
-      lblCam.className="upbtn cam";lblCam.title="Tirar foto com câmera";
-      lblCam.innerHTML='<i class="fa-solid fa-camera"></i>';
-      var inpCam=document.createElement("input");
-      inpCam.type="file";inpCam.accept="image/*";
-      inpCam.setAttribute("capture","environment"); // rear camera
-      (function(pid){inpCam.addEventListener("change",function(ev){upImg(ev,pid);});})(p.id);
-      lblCam.appendChild(inpCam);acts.appendChild(lblCam);
-      
-      // Botão Arquivo (galeria/arquivos)
-      var lblArq=document.createElement("label");
-      lblArq.className="upbtn arq";lblArq.title="Escolher da galeria ou arquivos";
-      lblArq.innerHTML='<i class="fa-solid fa-image"></i>';
-      var inpArq=document.createElement("input");
-      inpArq.type="file";inpArq.accept="image/*";
-      // NO capture attribute = opens gallery/files picker
-      (function(pid){inpArq.addEventListener("change",function(ev){upImg(ev,pid);});})(p.id);
-      lblArq.appendChild(inpArq);acts.appendChild(lblArq);
-    } else {
-      var lblDis=document.createElement("label");
-      lblDis.className="upbtn";lblDis.title="Ative 'Exibir no Catálogo' primeiro";
-      lblDis.style.opacity="0.35";
-      lblDis.innerHTML='<i class="fa-solid fa-camera"></i>';
-      acts.appendChild(lblDis);
-    }
+    // Câmera
+    var lblCam=document.createElement("label");
+    lblCam.className="upbtn cam";lblCam.title="Tirar foto (câmera)";
+    lblCam.innerHTML='<i class="fa-solid fa-camera"></i>';
+    var inpCam=document.createElement("input");
+    inpCam.type="file";inpCam.accept="image/*";
+    inpCam.setAttribute("capture","environment");
+    (function(pid){inpCam.addEventListener("change",function(ev){upImg(ev,pid);});})(p.id);
+    lblCam.appendChild(inpCam);acts.appendChild(lblCam);
+    // Galeria/Arquivo
+    var lblArq=document.createElement("label");
+    lblArq.className="upbtn arq";lblArq.title="Escolher foto da galeria";
+    lblArq.innerHTML='<i class="fa-solid fa-image"></i>';
+    var inpArq=document.createElement("input");
+    inpArq.type="file";inpArq.accept="image/*";
+    (function(pid){inpArq.addEventListener("change",function(ev){upImg(ev,pid);});})(p.id);
+    lblArq.appendChild(inpArq);acts.appendChild(lblArq);
     // Remove image button
     if(p.imagemUrl){
       var rmbtn=document.createElement("button");rmbtn.className="iico";rmbtn.title="Remover foto";
@@ -2845,5 +2887,8 @@ document.addEventListener("DOMContentLoaded",function(){
 // Init
 rCart();
 </script>
+<div id="version-footer" style="position:fixed;bottom:5px;right:10px;font-size:.6rem;color:var(--t3);z-index:1;pointer-events:none;font-family:Barlow;letter-spacing:.04em;opacity:.5">
+  WingCell v1.4.0
+</div>
 </body>
 </html>
