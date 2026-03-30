@@ -1351,7 +1351,7 @@ function fmtWA(raw){
   // Return as-is if already looks right
   return digits;
 }
-function isAv(p){return p.disponivel!==false&&p.estoque>0;}
+function isAv(p){return p.estoque>0&&p.preco>0;}
 function fmtP(v){return "R$ "+v.toFixed(2).replace(".",",");}
 function NL(){return String.fromCharCode(10);}
 
@@ -1908,8 +1908,13 @@ function rTbl(){
   var q=srchEl?srchEl.value.toLowerCase():"";
   var desc=me?me.desconto||0:0;
   var list=PRODS.filter(function(p){
+    if(p.preco<=0)return false; // ocultar preço zero
+    if(!isAv(p)&&!window._showFalta)return false; // padrão: só disponíveis
     var catOk=catA==="Todos"||(catA==="__novidades__"?p.novidade:p.categoria===catA);
-    return catOk&&(!q||((p.produto+" "+p.marca+" "+(p.modelo||"")+" "+p.categoria).toLowerCase().indexOf(q)>=0));
+    if(!catOk)return false;
+    if(!q)return true;
+    var txt=(p.produto+" "+(p.marca||"")+" "+(p.modelo||"")+" "+p.categoria+" "+(p.id||"")).toLowerCase();
+    return txt.indexOf(q)>=0;
   });
   var tb=document.getElementById("ptb");if(!tb)return;tb.innerHTML="";
   if(!list.length){
@@ -1967,7 +1972,7 @@ function rTbl(){
   rCards(list,desc);
   
   var tot=PRODS.length;
-  var disp=PRODS.filter(function(p){return isAv(p)&&p.preco>0;}).length;
+  var disp=PRODS.filter(function(p){return isAv(p);}).length;
   var sb=document.getElementById("sbar");
   var emFalta=PRODS.filter(function(p){return !isAv(p)&&p.preco>0;}).length;
   if(sb){
@@ -2176,7 +2181,7 @@ function rCat(){
   var srchEl=document.getElementById("srchc");
   var q=srchEl?srchEl.value.toLowerCase():"";
   var list=PRODS.filter(function(p){
-    if(p.preco<=0)return false; // Hide zero-price
+    if(!isAv(p))return false; // só disponíveis no catálogo
     if(!p.mostrarCatalogo)return false;
     if(catAC!=="Todos"&&p.categoria!==catAC)return false;
     if(!q)return true;
