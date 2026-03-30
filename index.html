@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#e81c1c">
 <title>WingCell</title>
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiV2luZ0NlbGwiLCJzaG9ydF9uYW1lIjoiV2luZ0NlbGwiLCJzdGFydF91cmwiOiIuLyIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMwYzBjMGMiLCJ0aGVtZV9jb2xvciI6IiNlODFjMWMiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sLCU0MHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxOTIgMTkyJyU0MTUlM0NyZWN0IHdpZHRoPScxOTInIGhlaWdodD0nMTkyJyByeD0nMzInIGZpbGw9JyNlODFjMWMnLyU0MTVjaXJjbGUgY3g9Jzk2JyBjeT0nOTYnIHI9Jzc4JyBmaWxsPSdub25lJyBzdHJva2U9J3doaXRlJyBzdHJva2Utd2lkdGg9JzgnLyU0MVwvcGF0aCBkPSdNNzIgMTM4IEM2NCAxMTggNjYgODggODggNjYgQzkwIDg2IDg4IDExMiA4MiAxMzIgWicgZmlsbD0nd2hpdGUnLyU0MXBhdGggZD0nTTgyIDEzMiBDNzggMTEwIDg0IDgyIDEwNCA2MiBDMTA2IDg0IDEwMiAxMTAgOTYgMTMwIFonIGZpbGw9J3doaXRlJy8lNDFwYXRoIGQ9J005NiAxMzAgQzk0IDEwNiAxMDIgNzggMTIwIDYwIEMxMjIgODIgMTE2IDEwNiAxMTAgMTI0IFonIGZpbGw9J3doaXRlJy8lNDFwYXRoIGQ9J00xMTAgMTI0IEMxMTAgMTAwIDExOCA3MiAxMzYgNTYgQzEzNiA3OCAxMjggMTAwIDEyMiAxMjAgWicgZmlsbD0nd2hpdGUnLyU0MVwvc3ZnJSUzRSIsInNpemVzIjoiMTkyeDE5MiIsInR5cGUiOiJpbWFnZS9zdmcreG1sIn1dfQ==">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WingCell">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -280,7 +285,41 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
 .loja-link{display:flex;align-items:center;gap:11px;padding:12px;background:var(--bg3);border:1px solid var(--b);border-radius:9px;text-decoration:none;color:var(--t);margin-bottom:7px;transition:all .2s}
 .loja-link:hover{border-color:#25d366;background:rgba(37,211,102,.07)}
 .loja-link-ic{width:36px;height:36px;border-radius:8px;background:rgba(37,211,102,.12);color:#25d366;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
-@media(max-width:768px){.nbl{display:none}.pghdr,.toolbar,.sbar,.pwrap,.cwrap{padding-left:13px;padding-right:13px}.cpgrid{padding:13px;grid-template-columns:repeat(auto-fill,minmax(128px,1fr))}.admwrap{grid-template-columns:1fr}.admside{position:relative;height:auto;display:flex;flex-wrap:wrap;gap:3px;padding:9px;top:0;border-right:none;border-bottom:1px solid var(--b)}.admlbl{display:none}.an{flex:0 0 auto;padding:6px 9px;font-size:.77rem}.admbd{padding:14px 13px 40px}}
+
+/* PWA Install Banner */
+.pwa-banner{position:fixed;bottom:0;left:0;right:0;z-index:9500;background:var(--bg2);border-top:2px solid var(--red);padding:12px 18px;display:flex;align-items:center;gap:11px;box-shadow:0 -4px 20px rgba(0,0,0,.4);animation:slideUp .3s ease;transform:translateY(0)}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.pwa-banner.hidden{display:none}
+.pwa-icon{width:42px;height:42px;background:var(--red);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:#fff;flex-shrink:0}
+.pwa-info{flex:1;min-width:0}
+.pwa-info strong{display:block;font-size:.85rem;font-weight:700}
+.pwa-info span{font-size:.74rem;color:var(--t2)}
+.pwa-install{padding:8px 16px;background:var(--red);border:none;border-radius:8px;color:#fff;font-family:"Barlow Condensed";font-size:.85rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.pwa-close{background:none;border:none;color:var(--t3);cursor:pointer;font-size:1rem;padding:4px;flex-shrink:0}
+
+/* Filter button mobile */
+.filter-btn{display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:8px;border:1.5px solid var(--b2);background:var(--bg3);color:var(--t2);font-family:Barlow;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .16s;flex-shrink:0}
+.filter-btn.active{border-color:var(--red);color:var(--red);background:var(--reds)}
+.filter-btn i{font-size:.72rem}
+.filter-badge{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;background:var(--red);color:#fff;border-radius:50%;font-size:.6rem;font-weight:700;margin-left:2px}
+
+/* Filter drawer */
+.filter-drawer{position:fixed;bottom:0;left:0;right:0;z-index:900;background:var(--bg2);border-radius:18px 18px 0 0;border-top:2px solid var(--red);padding:0;max-height:75vh;overflow-y:auto;transform:translateY(100%);transition:transform .28s cubic-bezier(.4,0,.2,1)}
+.filter-drawer.on{transform:translateY(0)}
+.filter-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:899;display:none}
+.filter-ov.on{display:block}
+.filter-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--b);position:sticky;top:0;background:var(--bg2);z-index:1}
+.filter-hdr h3{font-family:"Barlow Condensed";font-weight:700;font-size:1rem;text-transform:uppercase;letter-spacing:.06em}
+.filter-body{padding:16px 18px 32px}
+.filter-sec-lbl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--t2);margin-bottom:10px;margin-top:16px}
+.filter-sec-lbl:first-child{margin-top:0}
+.filter-cats{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:4px}
+.fcat-btn{padding:7px 14px;border-radius:20px;border:1.5px solid var(--b);background:transparent;color:var(--t2);font-family:Barlow;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .16s}
+.fcat-btn.on{background:var(--red);border-color:var(--red);color:#fff}
+.filter-actions{display:flex;gap:8px;margin-top:18px}
+
+@media(max-width:768px){
+.nbl{display:none}.pghdr,.toolbar,.sbar,.pwrap,.cwrap{padding-left:13px;padding-right:13px}.cpgrid{padding:13px;grid-template-columns:repeat(auto-fill,minmax(128px,1fr))}.admwrap{grid-template-columns:1fr}.admside{position:relative;height:auto;display:flex;flex-wrap:wrap;gap:3px;padding:9px;top:0;border-right:none;border-bottom:1px solid var(--b)}.admlbl{display:none}.an{flex:0 0 auto;padding:6px 9px;font-size:.77rem}.admbd{padding:14px 13px 40px}}
 @media(max-width:480px){#tb{padding:0 10px;gap:7px}.logo-nm{font-size:1.2rem}.nb{padding:5px 8px}}
 </style>
 </head>
@@ -442,8 +481,11 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
   </div>
   <div class="toolbar">
     <div class="srch"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="srchp" placeholder="Buscar produto, marca..." oninput="dbSearch(this.value,1)" autocomplete="off"></div>
-    <div class="chips" id="chips1"></div>
+    <button class="filter-btn" id="filter-btn-p" onclick="opFilter()">
+      <i class="fa-solid fa-sliders"></i> Filtros <span class="filter-badge" id="filter-badge" style="display:none">1</span>
+    </button>
   </div>
+  <div class="chips" id="chips1" style="padding:8px 26px 4px;overflow-x:auto;display:flex;gap:5px;scrollbar-width:none;-webkit-overflow-scrolling:touch"></div>
   <div class="sbar" id="sbar"></div>
   <div class="pwrap"><div class="tbox">
     <table class="ptbl">
@@ -638,6 +680,40 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
       </div>
     </div>
   </div>
+</div>
+
+<!-- FILTER DRAWER -->
+<div class="filter-ov" id="filter-ov" onclick="clFilter()"></div>
+<div class="filter-drawer" id="filter-drawer">
+  <div class="filter-hdr">
+    <h3><i class="fa-solid fa-sliders" style="color:var(--red);margin-right:6px"></i>Filtros</h3>
+    <button onclick="clFilter()" style="background:none;border:none;color:var(--t2);cursor:pointer;font-size:1rem"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="filter-body">
+    <div class="filter-sec-lbl">Categoria</div>
+    <div class="filter-cats" id="filter-cats-list"></div>
+    <div class="filter-sec-lbl">Disponibilidade</div>
+    <div class="filter-cats">
+      <button class="fcat-btn on" id="fdisp-todos" onclick="setFDisp('todos',this)">Todos</button>
+      <button class="fcat-btn" id="fdisp-disp" onclick="setFDisp('disp',this)">Disponíveis</button>
+      <button class="fcat-btn" id="fdisp-falta" onclick="setFDisp('falta',this)">Em Falta</button>
+    </div>
+    <div class="filter-actions">
+      <button class="btnr" style="flex:1" onclick="applyFilter()"><i class="fa-solid fa-check"></i> Aplicar</button>
+      <button class="btno" style="flex:1" onclick="clrFilter()"><i class="fa-solid fa-rotate-left"></i> Limpar</button>
+    </div>
+  </div>
+</div>
+
+<!-- PWA INSTALL BANNER -->
+<div class="pwa-banner hidden" id="pwa-banner">
+  <div class="pwa-icon"><i class="fa-solid fa-mobile-screen"></i></div>
+  <div class="pwa-info">
+    <strong>Instalar WingCell</strong>
+    <span>Acesso rápido na tela inicial</span>
+  </div>
+  <button class="pwa-install" id="pwa-install-btn">Instalar</button>
+  <button class="pwa-close" onclick="document.getElementById('pwa-banner').classList.add('hidden');localStorage.setItem('pwa-dismissed','1')"><i class="fa-solid fa-xmark"></i></button>
 </div>
 
 <script>
@@ -1076,6 +1152,109 @@ function setCat(c,el,ctx){
   if(ctx===1)rTbl();else rCat();
 }
 
+// ── PWA INSTALL ───────────────────────────────────────────
+var _pwaPrompt=null;
+window.addEventListener("beforeinstallprompt",function(e){
+  e.preventDefault();_pwaPrompt=e;
+  if(!localStorage.getItem("pwa-dismissed")){
+    setTimeout(function(){
+      var b=document.getElementById("pwa-banner");
+      if(b)b.classList.remove("hidden");
+    },3000);
+  }
+});
+window.addEventListener("appinstalled",function(){
+  var b=document.getElementById("pwa-banner");
+  if(b)b.classList.add("hidden");
+  toast("WingCell instalado!","ok");
+});
+document.addEventListener("DOMContentLoaded",function(){
+  var installBtn=document.getElementById("pwa-install-btn");
+  if(installBtn){
+    installBtn.addEventListener("click",function(){
+      if(_pwaPrompt){
+        _pwaPrompt.prompt();
+        _pwaPrompt.userChoice.then(function(r){
+          if(r.outcome==="accepted")toast("Instalando WingCell...","ok");
+          _pwaPrompt=null;
+          var b=document.getElementById("pwa-banner");
+          if(b)b.classList.add("hidden");
+        });
+      }
+    });
+  }
+});
+
+// ── FILTER DRAWER ─────────────────────────────────────────
+var filterCat="Todos";
+var filterDisp="todos";
+
+function opFilter(){
+  // Build category buttons
+  var cl=document.getElementById("filter-cats-list");
+  if(cl){
+    cl.innerHTML="";
+    var catOrder=["Todos","Telas","Baterias","Flex Placa","Flex Power","Biometrias","Auto Falantes","Peliculas","Lentes"];
+    catOrder.forEach(function(cat){
+      if(cat!=="Todos"&&!PRODS.some(function(p){return p.categoria===cat;}))return;
+      var btn=document.createElement("button");
+      btn.className="fcat-btn"+(cat===filterCat?" on":"");
+      btn.textContent=cat;
+      btn.addEventListener("click",function(){
+        document.querySelectorAll(".filter-cats-list .fcat-btn, #filter-cats-list .fcat-btn").forEach(function(b){b.classList.remove("on");});
+        btn.classList.add("on");
+        filterCat=cat;
+      });
+      cl.appendChild(btn);
+    });
+  }
+  // Set disp buttons
+  ["todos","disp","falta"].forEach(function(v){
+    var btn=document.getElementById("fdisp-"+v);
+    if(btn)btn.classList.toggle("on",v===filterDisp);
+  });
+  var ov=document.getElementById("filter-ov");
+  var dr=document.getElementById("filter-drawer");
+  if(ov)ov.classList.add("on");
+  setTimeout(function(){if(dr)dr.classList.add("on");},10);
+}
+function clFilter(){
+  var ov=document.getElementById("filter-ov");
+  var dr=document.getElementById("filter-drawer");
+  if(dr)dr.classList.remove("on");
+  setTimeout(function(){if(ov)ov.classList.remove("on");},280);
+}
+function setFDisp(v,el){
+  filterDisp=v;
+  document.querySelectorAll(".fcat-btn").forEach(function(b){
+    if(b.id&&b.id.startsWith("fdisp-"))b.classList.remove("on");
+  });
+  el.classList.add("on");
+}
+function applyFilter(){
+  catA=filterCat;
+  // Update chips UI
+  document.querySelectorAll("#chips1 .cf").forEach(function(b){
+    b.classList.toggle("on",b.textContent===catA||(catA==="Todos"&&b.textContent==="Todos"));
+  });
+  // Update filter badge
+  var badge=document.getElementById("filter-badge");
+  var fbtn=document.getElementById("filter-btn-p");
+  var hasFilter=filterCat!=="Todos"||filterDisp!=="todos";
+  if(badge)badge.style.display=hasFilter?"":"none";
+  if(fbtn)fbtn.classList.toggle("active",hasFilter);
+  rTbl();clFilter();
+}
+function clrFilter(){
+  filterCat="Todos";filterDisp="todos";
+  var badge=document.getElementById("filter-badge");
+  var fbtn=document.getElementById("filter-btn-p");
+  if(badge)badge.style.display="none";
+  if(fbtn)fbtn.classList.remove("active");
+  document.querySelectorAll("#chips1 .cf").forEach(function(b){b.classList.toggle("on",b.textContent==="Todos");});
+  rTbl();clFilter();
+}
+
 // ── DEBOUNCED SEARCH ─────────────────────────────────────────
 var _srchTimer=null;
 function dbSearch(val,ctx){
@@ -1197,6 +1376,7 @@ function rCat(){
   var srchEl=document.getElementById("srchc");
   var q=srchEl?srchEl.value.toLowerCase():"";
   var list=PRODS.filter(function(p){
+    if(p.preco<=0)return false; // Hide zero-price
     if(!p.mostrarCatalogo)return false;
     if(catAC!=="Todos"&&p.categoria!==catAC)return false;
     if(!q)return true;
@@ -1563,11 +1743,13 @@ function doImport(){
     var getRow=function(role){return rIdx[role]!==undefined?row[rIdx[role]]:"";}
     var pv=String(getRow("produto")||row[0]||"").trim();
     if(!pv)continue;
+    var testPreco=parseFloat(String(getRow("preco")||"").replace(/[^0-9.,]/g,"").replace(",","."))||0;
+    if(testPreco<=0&&rIdx["preco"]!==undefined)continue; // Skip zero-price rows
 
     var mv=String(getRow("marca")||"").trim();
     var modv=String(getRow("modelo")||"").trim();
     var dv=String(getRow("descricao")||"").trim();
-    var precoStr=String(getRow("preco")||"").replace(/[R$\s]/g,"").replace(",",".").trim();
+    var precoStr=String(getRow("preco")||"").replace(/[^0-9.,]/g,"").replace(",",".").trim();
     var preco=parseFloat(precoStr)||0;
     var estoqueStr=String(getRow("estoque")||"").trim();
     var estoque=parseInt(estoqueStr)||0;
