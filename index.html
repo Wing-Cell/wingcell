@@ -927,7 +927,7 @@ function opModLojas(){
       var msg=encodeURIComponent("Olá! Gostaria de me tornar cliente WingCell. Pode me fornecer um código de acesso?");
       var a=document.createElement("a");
       a.className="loja-link";
-      a.href="https://wa.me/"+l.whatsapp+"?text="+msg;
+      a.href="https://wa.me/"+fmtWA(l.whatsapp)+"?text="+msg;
       a.target="_blank";
       a.innerHTML='<div class="loja-link-ic"><i class="fa-brands fa-whatsapp"></i></div>'
         +'<div><div style="font-size:.85rem;font-weight:600">'+l.nome+'</div>'
@@ -1113,7 +1113,7 @@ function loadCfg(){
       var d=s.data();
       if(d.contatos)CI_LINKS=d.contatos;
       if(d.redesSociais)SOCIALS=d.redesSociais;
-      if(d.lojas)LOJAS=d.lojas;
+      if(d.lojas){LOJAS=d.lojas;LOJAS.forEach(function(l){l.whatsapp=fmtWA(l.whatsapp);});}
       if(d.cats)CATS=d.cats;
       if(d.msgBV)CFG.msgBV=d.msgBV;
       if(d.msgEnt)CFG.msgEnt=d.msgEnt;
@@ -1139,6 +1139,21 @@ function loadCfg(){
 }
 
 // ── HELPERS ───────────────────────────────────────────────
+// Format any phone input to WhatsApp-compatible number (55 + DDD + number)
+function fmtWA(raw){
+  // Remove everything except digits
+  var digits=String(raw||"").replace(/[^0-9]/g,"");
+  // Remove leading zeros
+  digits=digits.replace(/^0*/,"");
+  // If starts with 55 and has 12-13 digits = already correct
+  if(digits.startsWith("55")&&digits.length>=12&&digits.length<=13)return digits;
+  // If 10-11 digits = BR number without country code
+  if(digits.length>=10&&digits.length<=11)return "55"+digits;
+  // If 12-13 digits without 55 prefix
+  if(digits.length>=12&&digits.length<=13&&!digits.startsWith("55"))return "55"+digits;
+  // Return as-is if already looks right
+  return digits;
+}
 function isAv(p){return p.disponivel!==false&&p.estoque>0;}
 function fmtP(v){return "R$ "+v.toFixed(2).replace(".",",");}
 function NL(){return String.fromCharCode(10);}
@@ -1531,7 +1546,8 @@ function rContact(){
   if(cl){
     cl.innerHTML="";
     CI_LINKS.forEach(function(l){
-      var href=l.tipo==="email"?"mailto:"+l.valor:l.tipo==="phone"?"tel:"+l.valor.replace(/[^0-9+]/g,""):l.valor||"#";
+      var hrefVal=l.valor||"";
+      var href=l.tipo==="email"?"mailto:"+hrefVal:l.tipo==="phone"?"https://wa.me/"+fmtWA(hrefVal):hrefVal||"#";
       var a=document.createElement("a");a.className="ciit";a.href=href;a.target="_blank";
       var ic=document.createElement("div");ic.className="ciic";ic.innerHTML='<i class="'+(CI_IC[l.tipo]||"fa-solid fa-link")+'"></i>';
       var info=document.createElement("div");
@@ -1672,11 +1688,19 @@ function enviar(){
   var loja=null;
   for(var i=0;i<LOJAS.length;i++){if(LOJAS[i].id===lojaS){loja=LOJAS[i];break;}}
   if(!loja){toast("Selecione uma loja.","err");return;}
-  window.open("https://wa.me/"+loja.whatsapp+"?text="+encodeURIComponent(bldMsg()),"_blank");
+  var num=fmtWA(loja.whatsapp);
+  var msg=bldMsg();
+  var url="https://wa.me/"+num+"?text="+encodeURIComponent(msg);
+  // Try to open WhatsApp - works on mobile and desktop
+  var win=window.open(url,"_blank");
+  // Fallback for browsers that block window.open
+  if(!win||win.closed||typeof win.closed==="undefined"){
+    window.location.href=url;
+  }
   if(window.FB&&window.FB.FB_OK){
     var tv=CART.reduce(function(s,i){return s+i.preco*i.qty;},0);
     window.FB.addDoc(window.FB.collection(window.FB.db,"pedidos"),{
-      clienteCódigo:me?me.codigo:null,tipo:tipoS,lojaId:loja.id,
+      clienteCodigo:me?me.codigo:null,tipo:tipoS,lojaId:loja.id,
       itens:CART,total:tv,status:"enviado",
       createdAt:window.FB.serverTimestamp()
     }).catch(function(){});
@@ -2222,8 +2246,11 @@ function rLojas(){
     (function(idx){inp2.addEventListener("change",function(){LOJAS[idx].nome=this.value;svLojas();});})(i);
     td2.appendChild(inp2);
     var td3=document.createElement("td");
-    var inp3=document.createElement("input");inp3.className="edbl";inp3.value=l.whatsapp;
-    (function(idx){inp3.addEventListener("change",function(){LOJAS[idx].whatsapp=this.value;svLojas();});})(i);
+    var inp3=document.createElement("input");inp3.className="edbl";inp3.value=l.whatsapp;inp3.placeholder="5547999887766";
+    (function(idx){
+      inp3.addEventListener("change",function(){LOJAS[idx].whatsapp=fmtWA(this.value);this.value=LOJAS[idx].whatsapp;svLojas();});
+      inp3.addEventListener("blur",function(){this.value=fmtWA(this.value);});
+    })(i);
     td3.appendChild(inp3);
     var td4=document.createElement("td");
     var chk=document.createElement("input");chk.type="checkbox";chk.checked=l.ativo;chk.style.accentColor="var(--grn)";
@@ -2242,7 +2269,7 @@ function addLoja(){
   var w=document.getElementById("nlw").value.trim();
   if(!n||!w){toast("Nome e WhatsApp obrigatórios.","err");return;}
   if(LOJAS.length>=6){toast("Máximo 6 lojas.","err");return;}
-  LOJAS.push({id:"loja"+Date.now(),nome:n,whatsapp:w,ativo:true});
+  LOJAS.push({id:"loja"+Date.now(),nome:n,whatsapp:fmtWA(w),ativo:true});
   ["nln","nlw"].forEach(function(id){var el=document.getElementById(id);if(el)el.value="";});
   svLojas();rLojas();toast("Loja adicionada.","ok");
 }
@@ -2251,6 +2278,8 @@ function rmLoja(i){
   LOJAS.splice(i,1);svLojas();rLojas();toast("Removida.","ok");
 }
 function svLojas(){
+  // Auto-format all WhatsApp numbers before saving
+  LOJAS.forEach(function(l){l.whatsapp=fmtWA(l.whatsapp);});
   if(window.FB&&window.FB.FB_OK){
     window.FB.setDoc(window.FB.doc(window.FB.db,"config","portal"),{lojas:LOJAS},{merge:true}).catch(function(){});
   }
