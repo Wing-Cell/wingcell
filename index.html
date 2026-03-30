@@ -406,7 +406,7 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
         <button class="btnr" id="blg" onclick="doLg()"><i class="fa-solid fa-unlock"></i> Acessar Portal</button>
         <div class="lcontact-box">
           <p>Não possui código de cliente?</p>
-          <button class="btn-contact" id="btn-contact-lojas"><i class="fa-solid fa-headset"></i> Entrar em Contato com uma Loja</button>
+          <button class="btn-contact" id="btn-contact-lojas"><i class="fa-solid fa-phone"></i> Entrar em Contato com uma Loja</button>
         </div>
       </div>
       <div id="fa" style="display:none">
@@ -658,7 +658,7 @@ var SOC_META={
   twitter:{ic:"fa-brands fa-x-twitter",lb:"Twitter/X",c:"#1da1f2"}
 };
 var CAT_KW={
-  "Telas":["tela","display","lcd","oled","amoled","frontal"],
+  "Telas":["tela"],
   "Baterias":["bateria","battery","mah"],
   "Flex Placa":["flex placa","placa mae","motherboard"],
   "Flex Power":["flex power","power flex","botao power","volume"],
@@ -735,14 +735,16 @@ function togTh(){
   updateThemeUI(n);
 }
 function updateThemeUI(t){
+  var isDark=t==="dark";
+  var moonClass="fa-solid fa-moon";var sunClass="fa-solid fa-sun";
+  // Topbar button
   var tb=document.getElementById("thbtn");
-  if(tb)tb.innerHTML=t==="dark"?'<i class="fa-solid fa-moon"></i>':' <i class="fa-solid fa-sun"></i>';
+  if(tb)tb.innerHTML=isDark?'<i class="'+moonClass+'"></i>':' <i class="'+sunClass+'"></i>';
+  // Login page icon (don't recreate the whole button - just update icon and text)
   var ico=document.getElementById("lgthico");
-  if(ico)ico.className=t==="dark"?"fa-solid fa-moon":"fa-solid fa-sun";
+  if(ico)ico.className=isDark?moonClass:sunClass;
   var lbl=document.getElementById("lgthtxt");
-  if(lbl)lbl.textContent=t==="dark"?"Modo Escuro":"Modo Claro";
-  var lgthbtn=document.getElementById("lgthbtn");
-  if(lgthbtn)lgthbtn.innerHTML='<i class="fa-solid '+(t==="dark"?"fa-moon":"fa-sun")+'" id="lgthico"></i><span id="lgthtxt">'+(t==="dark"?"Modo Escuro":"Modo Claro")+"</span>";
+  if(lbl)lbl.textContent=isDark?"Modo Escuro":"Modo Claro";
 }
 
 (function(){
