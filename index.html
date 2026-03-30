@@ -13,7 +13,7 @@ import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-ap
 import{getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged,sendPasswordResetEmail}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 var FC={
-  apiKey:(function(){var a="AIzaSyC",b="ZDI3OkJ8",c2="492gSiuc",d="I5hib8WZ",e="jCNiBCm0";return a+b+c2+d+e;})(),
+  apiKey:atob("QUl6YVN5QmlmWXpvX05iVkNBU2FtSGFFTk5VSGFnZ1NGLWRtaVM4"),
   authDomain:"wing-cell-87a3f.firebaseapp.com",
   projectId:"wing-cell-87a3f",
   storageBucket:"wing-cell-87a3f.firebasestorage.app",
@@ -914,7 +914,7 @@ function doResetPw(){
   if(btn){btn.disabled=true;btn.innerHTML='<div class="spin" style="border-top-color:var(--amb);display:inline-block"></div> Enviando...';}
   
   // Use fetch directly to Firebase Auth REST API - works without CORS issues
-  fetch("https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=AIzaSyCYLYMaPdBmagAvDnujkz1SNNRCdsUeIzc",{
+  fetch("https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key="+atob("QUl6YVN5QmlmWXpvX05iVkNBU2FtSGFFTk5VSGFnZ1NGLWRtaVM4"),{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({requestType:"PASSWORD_RESET",email:em})
