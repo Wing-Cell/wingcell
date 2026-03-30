@@ -27,6 +27,8 @@ var FC={
   measurementId:"G-47YBM54G7K"
 };
 window.CLD={cloudName:"dkckpyfgn",uploadPreset:"ml_default"};
+// Load custom preset from localStorage if admin changed it
+(function(){var saved=localStorage.getItem("wc_cld_preset");if(saved){var p=JSON.parse(saved);if(p.preset)window.CLD.uploadPreset=p.preset;}})();
 var db,auth,FB_OK=FC.apiKey!=="SUA_API_KEY";
 if(FB_OK){var app=initializeApp(FC);db=getFirestore(app);auth=getAuth(app);}
 window.FB={db:db,auth:auth,FB_OK:FB_OK,collection:collection,doc:doc,getDoc:getDoc,getDocs:getDocs,setDoc:setDoc,addDoc:addDoc,updateDoc:updateDoc,deleteDoc:deleteDoc,serverTimestamp:serverTimestamp,signInWithEmailAndPassword:signInWithEmailAndPassword,signOut:signOut,onAuthStateChanged:onAuthStateChanged,sendPasswordResetEmail:sendPasswordResetEmail};
@@ -751,6 +753,13 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
       </div>
       <div class="asec" id="as-cataadm">
         <div class="stit">Catálogo <em>— Visibilidade e Fotos</em></div>
+        <div id="cld-status" style="padding:8px 12px;border-radius:7px;font-size:.77rem;margin-bottom:8px;display:flex;align-items:center;gap:7px;flex-wrap:wrap"></div>
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:12px;flex-wrap:wrap">
+          <span style="font-size:.74rem;color:var(--t2);white-space:nowrap">Upload Preset:</span>
+          <input id="cld-preset-inp" style="flex:1;min-width:120px;padding:5px 9px;border-radius:6px;border:1.5px solid var(--b);background:var(--bg3);color:var(--t);font-size:.78rem" placeholder="ml_default">
+          <button onclick="saveCldPreset()" style="padding:5px 12px;background:var(--red);border:none;border-radius:6px;color:#fff;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap">Salvar</button>
+          <a href="https://cloudinary.com/console/settings/upload" target="_blank" style="font-size:.72rem;color:var(--blu)">Configurar Cloudinary →</a>
+        </div>
         <p style="color:var(--t2);font-size:.83rem;margin-bottom:14px;line-height:1.5">
           O catálogo é uma extensão da tabela de preços. Ative <strong style="color:var(--grn)">Exibir no Catálogo</strong> 
           para que o produto apareça na aba Catálogo do cliente. Produtos sem essa opção aparecem apenas na tabela de preços.
@@ -1543,35 +1552,71 @@ function addPhotoSlot(e,p,currentFotos,callback){
   if(currentFotos.length>=3){toast("Máximo 3 fotos por produto.","err");return;}
   var cfg=window.CLD;
   if(!cfg||cfg.cloudName==="SEU_CLOUD_NAME"){toast("Cloudinary não configurado.","err");return;}
-  toast("Enviando foto "+(currentFotos.length+1)+"/3...","info");
+  toast("Comprimindo foto...","info");
+  
   compressImg(file,900,0.88,function(blob,localUrl){
-    // Add local preview immediately
+    // Show preview immediately
     currentFotos.push(localUrl);
     saveFotosToProduct(p,currentFotos.slice());
     if(callback)callback(currentFotos);
-    // Upload to Cloudinary
-    var fd=new FormData();fd.append("file",blob,"foto.jpg");fd.append("upload_preset",cfg.uploadPreset);
-    fetch("https://api.cloudinary.com/v1_1/"+cfg.cloudName+"/image/upload",{method:"POST",body:fd})
-      .then(function(r){return r.json();})
-      .then(function(data){
-        if(!data.secure_url)throw new Error("Upload falhou");
-        // Replace local with CDN url
-        var idx=currentFotos.indexOf(localUrl);
-        if(idx>=0)currentFotos[idx]=data.secure_url;
-        saveFotosToProduct(p,currentFotos.slice());
-        if(callback)callback(currentFotos);
-        toast("Foto "+(currentFotos.length)+"/3 enviada!","ok");
-      })
-      .catch(function(err){
-        // Revert
-        var idx=currentFotos.indexOf(localUrl);
-        if(idx>=0)currentFotos.splice(idx,1);
-        saveFotosToProduct(p,currentFotos.slice());
-        if(callback)callback(currentFotos);
-        toast("Erro: "+err.message,"err");
-      });
+    toast("Enviando para servidor...","info");
+    
+    // localUrl is already base64 dataURL from compressImg - use directly
+    uploadToCloudinary(localUrl,cfg,function(cdnUrl){
+      var i2=currentFotos.indexOf(localUrl);
+      if(i2>=0)currentFotos[i2]=cdnUrl;
+      saveFotosToProduct(p,currentFotos.slice());
+      if(callback)callback(currentFotos);
+      toast("Foto enviada!","ok");
+    },function(err){
+      console.error("Upload:",err);
+      toast("Foto salva. Erro Cloudinary: "+err,"info");
+    });
   });
 }
+function saveCldPreset(){
+  var inp=document.getElementById("cld-preset-inp");
+  if(!inp||!inp.value.trim())return;
+  window.CLD.uploadPreset=inp.value.trim();
+  localStorage.setItem("wc_cld_preset",JSON.stringify({preset:inp.value.trim()}));
+  toast("Preset salvo: "+inp.value.trim(),"ok");
+  checkCldStatus();
+}
+
+function checkCldStatus(){
+  var el=document.getElementById("cld-status");if(!el)return;
+  var cfg=window.CLD;
+  // Fill preset input
+  var pi=document.getElementById("cld-preset-inp");if(pi)pi.value=cfg.uploadPreset||"";
+  if(!cfg||cfg.cloudName==="SEU_CLOUD_NAME"){
+    el.style.cssText="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#ef4444";
+    el.innerHTML='<i class="fa-solid fa-circle-xmark"></i> Cloudinary não configurado. Fotos salvas apenas localmente.';
+    return;
+  }
+  // Quick test upload with tiny 1x1 pixel
+  var testB64="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+  var fd=new FormData();fd.append("file",testB64);fd.append("upload_preset",cfg.uploadPreset);
+  el.style.cssText="background:var(--bg3);border:1px solid var(--b);color:var(--t2)";
+  el.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Verificando Cloudinary...';
+  fetch("https://api.cloudinary.com/v1_1/"+cfg.cloudName+"/image/upload",{method:"POST",body:fd})
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(data.secure_url){
+        el.style.cssText="background:rgba(22,163,74,.08);border:1px solid rgba(22,163,74,.2);color:var(--grn)";
+        el.innerHTML='<i class="fa-solid fa-circle-check"></i> Cloudinary conectado — upload de fotos funcionando!';
+      }else{
+        el.style.cssText="background:rgba(217,119,6,.08);border:1px solid rgba(217,119,6,.2);color:var(--amb)";
+        el.innerHTML='<i class="fa-solid fa-triangle-exclamation"></i> Cloudinary: erro — ''
+          +(data.error?data.error.message:"preset não autorizado. Configure como Unsigned no Cloudinary.");
+        el.innerHTML+=' <a href="https://cloudinary.com/console/settings/upload" target="_blank" style="color:var(--blu);font-weight:600;margin-left:4px">Configurar →</a>';
+      }
+    })
+    .catch(function(){
+      el.style.cssText="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#ef4444";
+      el.innerHTML='<i class="fa-solid fa-wifi"></i> Sem acesso ao Cloudinary. Verifique sua internet.';
+    });
+}
+
 function saveFotosToProduct(p,fotos){
   var idx=PRODS.findIndex(function(x){return x.id===p.id;});
   if(idx<0)return;
@@ -2799,31 +2844,40 @@ function upImg(e,id){
     fd.append("file",blob,"foto.jpg");
     fd.append("upload_preset",cfg.uploadPreset);
     
-    fetch("https://api.cloudinary.com/v1_1/"+cfg.cloudName+"/image/upload",{method:"POST",body:fd})
-      .then(function(r){
-        if(!r.ok)throw new Error("HTTP "+r.status);
-        return r.json();
-      })
-      .then(function(data){
-        if(!data.secure_url)throw new Error(data.error?data.error.message:"Upload falhou");
-        var url=data.secure_url;
-        var idx2=PRODS.findIndex(function(p){return p.id===id;});
-        if(idx2>=0)PRODS[idx2].imagemUrl=url;
-        if(window.FB&&window.FB.FB_OK){
-          window.FB.updateDoc(window.FB.doc(window.FB.db,"produtos",id),{imagemUrl:url}).catch(function(){});
-        }
-        rCatAdm();rTbl();rCat();
-        toast("Foto enviada com sucesso!","ok");
-      })
-      .catch(function(err){
-        // Revert preview on error
-        var idx3=PRODS.findIndex(function(p){return p.id===id;});
-        if(idx3>=0&&PRODS[idx3].imagemUrl===localUrl)PRODS[idx3].imagemUrl="";
-        rCatAdm();
-        toast("Erro ao enviar foto: "+err.message,"err");
-        console.error("Upload error:",err);
-      });
+    // localUrl already is base64 from compressImg
+    uploadToCloudinary(localUrl,cfg,function(cdnUrl){
+      var idx2=PRODS.findIndex(function(p){return p.id===id;});
+      if(idx2>=0)PRODS[idx2].imagemUrl=cdnUrl;
+      if(window.FB&&window.FB.FB_OK){
+        window.FB.updateDoc(window.FB.doc(window.FB.db,"produtos",id),{imagemUrl:cdnUrl}).catch(function(){});
+      }
+      rCatAdm();rTbl();rCat();
+      toast("Foto enviada!","ok");
+    },function(err){
+      console.error("Upload:",err);
+      toast("Foto local. Erro: "+err,"info");
+    });
   });
+}
+
+function uploadToCloudinary(dataUrl,cfg,onOk,onErr){
+  // Send as JSON body - avoids CORS/multipart issues on mobile
+  var fd=new FormData();
+  fd.append("file",dataUrl);
+  fd.append("upload_preset",cfg.uploadPreset);
+  fd.append("folder","wingcell");
+  
+  fetch("https://api.cloudinary.com/v1_1/"+cfg.cloudName+"/image/upload",{
+    method:"POST",
+    body:fd
+  })
+  .then(function(r){return r.json();})
+  .then(function(data){
+    if(data.error){onErr(data.error.message);return;}
+    if(!data.secure_url){onErr("Sem URL");return;}
+    onOk(data.secure_url);
+  })
+  .catch(function(e){onErr(e.message||"Erro de rede");});
 }
 
 function compressImg(file,maxSize,quality,callback){
@@ -3153,7 +3207,7 @@ function aN(sec){
   if(sec==="cfg-soc")rSocAdm();
   if(sec==="cats")rCatsList();
   if(sec==="dash")uDash();
-  if(sec==="cataadm")rCatAdm();
+  if(sec==="cataadm"){rCatAdm();checkCldStatus();}
 }
 
 // ── TOAST ─────────────────────────────────────────────────
