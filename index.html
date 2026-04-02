@@ -26,7 +26,7 @@ var FC={
   appId:"1:101999387959:web:dbc44a3c3095e5e66326b2",
   measurementId:"G-47YBM54G7K"
 };
-window.CLD={cloudName:"dkckpyfgn",uploadPreset:"ml_default"};
+window.CLD={cloudName:"dkckpyfgn",uploadPreset:"wingcell_unsigned"};
 // Load custom preset from localStorage if admin changed it
 (function(){var saved=localStorage.getItem("wc_cld_preset");if(saved){var p=JSON.parse(saved);if(p.preset)window.CLD.uploadPreset=p.preset;}})();
 var db,auth,FB_OK=FC.apiKey!=="SUA_API_KEY";
@@ -424,28 +424,51 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
 .fcat-btn.on{background:var(--red);border-color:var(--red);color:#fff}
 .filter-actions{display:flex;gap:8px;margin-top:18px}
 
+/* Mobile Bottom Nav */
+#mobile-nav{position:fixed;bottom:0;left:0;right:0;z-index:800;background:var(--bg2);border-top:1px solid var(--b);height:62px;display:none;align-items:center;justify-content:space-around;padding:0 4px;padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -4px 20px rgba(0,0,0,.15)}
+.mnav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;color:var(--t3);cursor:pointer;font-family:Barlow;font-size:.6rem;font-weight:600;padding:6px 8px;border-radius:10px;transition:color .18s;min-width:52px;position:relative}
+.mnav-btn i{font-size:1.15rem;display:block}
+.mnav-btn.on{color:var(--red)}
+.mnav-badge{position:absolute;top:3px;right:6px;background:var(--red);color:#fff;border-radius:50%;width:15px;height:15px;font-size:.55rem;display:none;align-items:center;justify-content:center;font-weight:700}
+
 @media(max-width:768px){
-.nbl{display:none}
-.pghdr,.toolbar,.sbar,.pwrap,.cwrap{padding-left:13px;padding-right:13px}
-.cpgrid{padding:13px;grid-template-columns:repeat(auto-fill,minmax(128px,1fr))}
-.admwrap{grid-template-columns:1fr}
-.admside{position:relative;height:auto;display:flex;flex-wrap:wrap;gap:3px;padding:9px;top:0;border-right:none;border-bottom:1px solid var(--b)}
-.admlbl{display:none}.an{flex:0 0 auto;padding:6px 9px;font-size:.77rem}.admbd{padding:14px 13px 80px}
-.srch{min-width:0;flex:1;max-width:100%}
-.srch input{font-size:.95rem;padding:11px 12px 11px 34px;border-radius:10px}
-.srch i{font-size:.9rem;left:11px}
-.toolbar{gap:7px;padding:10px 13px}
-.tbox{background:transparent;border:none;border-radius:0;overflow:visible}
-.ptbl{display:none}
-.prod-cards{display:flex;flex-direction:column;gap:8px}
-.abc,.aqq{width:36px;height:36px;font-size:.88rem}
-.cf{padding:7px 14px;font-size:.78rem}
-.pwrap{padding-bottom:120px}
-.cpgrid{padding-bottom:120px}
-#chips1{padding:6px 13px;flex-wrap:nowrap}
+  .nbl{display:none}
+  #tb{padding:0 10px;gap:4px;height:52px}
+  .logo-nm{font-size:1.1rem}
+  .nb{width:38px;height:38px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:9px}
+  #tb .nb:not(#thbtn):not(#nb-cart){display:none}
+  .pghdr,.toolbar,.sbar,.pwrap,.cwrap{padding-left:13px;padding-right:13px}
+  .pghdr{padding:12px 13px 8px}
+  .pghdr h2{font-size:1.4rem}
+  .pwrap{padding:10px 13px 80px}
+  .cpgrid{padding:13px 13px 80px;grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+  .toolbar{gap:7px;padding:8px 13px;flex-wrap:nowrap}
+  .srch{min-width:0;flex:1}
+  .srch input{font-size:.93rem;padding:10px 12px 10px 33px;border-radius:9px;height:42px}
+  .srch i{font-size:.85rem;left:11px}
+  .tbox{background:transparent;border:none;border-radius:0;overflow:visible;padding:0}
+  .ptbl{display:none}
+  .prod-cards{display:flex;flex-direction:column}
+  .prod-cards-wrap{margin:0 0 8px}
+  .abc,.aqq{width:34px;height:34px;font-size:.82rem;flex-shrink:0}
+  #chips1{padding:6px 13px 4px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  #chips1::-webkit-scrollbar{display:none}
+  .cf{padding:6px 13px;font-size:.76rem;white-space:nowrap}
+  .sbar{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .sbar::-webkit-scrollbar{display:none}
+  .si{white-space:nowrap}
+  #pg-precos,#pg-catalogo,#pg-historico,#pg-contato{overflow-x:hidden;max-width:100vw}
+  .admwrap{grid-template-columns:1fr}
+  .admside{position:relative;height:auto;display:flex;flex-wrap:wrap;gap:3px;padding:8px;top:0;border-right:none;border-bottom:1px solid var(--b)}
+  .admlbl{display:none}
+  .an{flex:0 0 auto;padding:6px 9px;font-size:.75rem}
+  .admbd{padding:12px 13px 80px}
+  .filter-btn{padding:6px 11px;font-size:.77rem}
 }
-@media(min-width:769px){.prod-cards{display:none}}
-@media(max-width:480px){#tb{padding:0 10px;gap:7px}.logo-nm{font-size:1.2rem}.nb{padding:5px 8px}}
+@media(min-width:769px){
+  .prod-cards{display:none}
+  #mobile-nav{display:none!important}
+}
 </style>
 </head>
 <body>
@@ -899,6 +922,33 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
   </div>
 </div>
 
+<!-- MOBILE BOTTOM NAV -->
+<div id="mobile-nav" style="display:none">
+  <button class="mnav-btn" id="mnav-precos" onclick="go('precos');updMNav('precos')">
+    <i class="fa-solid fa-table-list"></i>
+    <span>Preços</span>
+  </button>
+  <button class="mnav-btn" id="mnav-catalogo" onclick="go('catalogo');updMNav('catalogo')">
+    <i class="fa-solid fa-images"></i>
+    <span>Catálogo</span>
+  </button>
+  <div style="position:relative">
+    <button class="mnav-btn" id="mnav-cart" onclick="opCart()">
+      <i class="fa-solid fa-cart-shopping"></i>
+      <span>Carrinho</span>
+    </button>
+    <span class="badge" id="mnav-cart-badge" style="display:none;position:absolute;top:4px;right:8px;background:var(--red);color:#fff;border-radius:50%;width:16px;height:16px;font-size:.56rem;display:none;align-items:center;justify-content:center;font-weight:700"></span>
+  </div>
+  <button class="mnav-btn" id="mnav-historico" onclick="go('historico');updMNav('historico')">
+    <i class="fa-solid fa-clock-rotate-left"></i>
+    <span>Histórico</span>
+  </button>
+  <button class="mnav-btn" id="mnav-contato" onclick="go('contato');updMNav('contato')">
+    <i class="fa-solid fa-headset"></i>
+    <span>Contato</span>
+  </button>
+</div>
+
 <!-- PWA INSTALL BANNER -->
 <div class="pwa-banner hidden" id="pwa-banner">
   <div class="pwa-icon"><i class="fa-solid fa-mobile-screen"></i></div>
@@ -1241,6 +1291,8 @@ function afterLg(){
     if(crtbtn)crtbtn.style.display="flex";
     var nbhist=document.getElementById("nb-historico");
     if(nbhist)nbhist.style.display="";
+    showMobileNav(true);
+    updMNav("precos");
   }
   var subp=document.getElementById("subp");
   if(subp)subp.textContent=me.desconto>0?"Preços com "+me.desconto+"% de desconto - "+me.nome:"Preços para "+me.nome;
@@ -1278,6 +1330,7 @@ function doOut(){
   var crtbtn=document.getElementById("crtbtn");if(crtbtn)crtbtn.style.display="none";
   var nbadm=document.getElementById("nb-admin");if(nbadm)nbadm.style.display="none";
   var nbhist=document.getElementById("nb-historico");if(nbhist)nbhist.style.display="none";
+  showMobileNav(false);
   document.querySelectorAll(".page").forEach(function(p){p.classList.remove("on");});
   var login=document.getElementById("pg-login");if(login)login.classList.add("on");
   ["icod","isen","iae","iap"].forEach(function(id){
@@ -1288,6 +1341,16 @@ function doOut(){
 }
 
 // ── NAVIGATION ────────────────────────────────────────────
+function updMNav(active){
+  document.querySelectorAll(".mnav-btn").forEach(function(b){
+    b.classList.toggle("on", b.id==="mnav-"+active);
+  });
+}
+function showMobileNav(show){
+  var nav=document.getElementById("mobile-nav");
+  if(nav)nav.style.display=show?"flex":"none";
+}
+
 function go(id){
   if(!me&&id!=="login")return;
   document.querySelectorAll(".page").forEach(function(p){p.classList.remove("on");});
@@ -2865,24 +2928,37 @@ function uploadToCloudinary(dataUrl,cfg,onOk,onErr){
   if(!cfg||!cfg.cloudName||cfg.cloudName==="SEU_CLOUD_NAME"){
     onErr("Cloudinary não configurado");return;
   }
-  // Convert base64 to blob for upload
   var byteStr=atob(dataUrl.split(",")[1]);
-  var mime="image/jpeg";
   var arr=new Uint8Array(byteStr.length);
   for(var i=0;i<byteStr.length;i++)arr[i]=byteStr.charCodeAt(i);
-  var blob=new Blob([arr],{type:mime});
-  var fd=new FormData();
-  fd.append("file",blob,"foto.jpg");
-  fd.append("upload_preset",cfg.uploadPreset);
-  fd.append("folder","wingcell");
-  fetch("https://api.cloudinary.com/v1_1/"+cfg.cloudName+"/image/upload",{method:"POST",body:fd})
-    .then(function(r){return r.json();})
-    .then(function(data){
-      if(data.error){onErr(data.error.message);return;}
-      if(!data.secure_url){onErr("Sem URL retornada");return;}
-      onOk(data.secure_url);
-    })
-    .catch(function(e){onErr(e.message||"Erro de rede");});
+  var blob=new Blob([arr],{type:"image/jpeg"});
+  
+  // Try with current preset
+  var tryUpload=function(preset,attempt){
+    var fd=new FormData();
+    fd.append("file",blob,"foto.jpg");
+    fd.append("upload_preset",preset);
+    fd.append("folder","wingcell");
+    fetch("https://api.cloudinary.com/v1_1/"+cfg.cloudName+"/image/upload",{method:"POST",body:fd})
+      .then(function(r){return r.json();})
+      .then(function(data){
+        if(data.error){
+          var msg=data.error.message||"";
+          // If preset error and haven't tried fallback yet
+          if((msg.indexOf("whitelist")>=0||msg.indexOf("preset")>=0||msg.indexOf("unsigned")>=0)&&attempt===1){
+            // Try with ml_default as fallback
+            tryUpload("ml_default",2);
+          }else{
+            onErr("Preset '"+preset+"' inválido. Acesse o Cloudinary e configure como Unsigned.");
+          }
+          return;
+        }
+        if(!data.secure_url){onErr("Sem URL retornada");return;}
+        onOk(data.secure_url);
+      })
+      .catch(function(e){onErr(e.message||"Erro de rede");});
+  };
+  tryUpload(cfg.uploadPreset,1);
 }
 
 function compressImg(file,maxSize,quality,callback){
