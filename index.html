@@ -2549,17 +2549,7 @@ function rContact(){
   }
   var sr=document.getElementById("socrow");
   if(sr){
-    sr.innerHTML="";
-    SOCIALS.forEach(function(s){
-      var m=SOC_META[s.rede]||{ic:"fa-solid fa-link",lb:s.rede,c:"#888"};
-      var a=document.createElement("a");a.className="sbtn";a.href=s.url;a.target="_blank";
-      a.innerHTML='<i class="'+m.ic+'"></i>'+m.lb;
-      a.addEventListener("mouseenter",function(){this.style.borderColor=m.c;this.style.color=m.c;});
-      a.addEventListener("mouseleave",function(){this.style.borderColor="";this.style.color="";});
-      sr.appendChild(a);
-    });
-  }
-}
+    sr.i
 function sendMsg(){
   var nm=document.getElementById("cnom").value.trim();
   var em=document.getElementById("cem").value.trim();
