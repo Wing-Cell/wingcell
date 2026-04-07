@@ -336,6 +336,25 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
 .hist-empty{text-align:center;padding:48px 20px;color:var(--t3)}
 .hist-empty i{font-size:2.5rem;display:block;margin-bottom:12px;opacity:.3}
 
+/* Contact page */
+.loja-contact-card{background:var(--bg2);border:1.5px solid var(--b);border-radius:12px;padding:14px;cursor:pointer;transition:all .2s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
+.loja-contact-card:hover,.loja-contact-card:active{border-color:var(--red);background:var(--reds);transform:translateY(-1px)}
+.loja-contact-icon{width:44px;height:44px;border-radius:10px;background:var(--red);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem}
+.loja-contact-name{font-weight:700;font-size:.82rem;color:var(--t)}
+.loja-contact-status{font-size:.68rem;color:var(--grn);display:flex;align-items:center;gap:3px}
+/* Loja detail drawer */
+.loja-detail-ov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;display:none;align-items:flex-end}
+.loja-detail-ov.on{display:flex}
+.loja-detail-box{background:var(--bg2);border-radius:18px 18px 0 0;border-top:2px solid var(--red);width:100%;max-width:500px;margin:0 auto;padding:20px 20px 36px;transform:translateY(100%);transition:transform .28s cubic-bezier(.4,0,.2,1)}
+.loja-detail-box.on{transform:translateY(0)}
+/* Social cards */
+.soc-card{display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:10px;border:1.5px solid var(--b);background:var(--bg2);text-decoration:none;color:var(--t);transition:all .18s;flex:1;min-width:130px}
+.soc-card:hover{border-color:currentColor;transform:translateY(-1px)}
+.soc-card-ic{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.soc-card-info{min-width:0}
+.soc-card-name{font-weight:700;font-size:.8rem}
+.soc-card-handle{font-size:.7rem;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
 /* Performance */
 .prod-cards,.cpgrid{content-visibility:auto}
 .prod-card{contain:layout style}
@@ -533,13 +552,19 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
 <header id="tb">
   <div class="logo">
     <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="100" cy="100" r="88" fill="none" stroke="white" stroke-width="11"/>
-  <path d="M 72 152 C 62 125 68 92 92 68 C 95 92 90 122 84 145 Z" fill="white"/>
-  <path d="M 84 145 C 80 118 88 86 112 64 C 114 88 108 118 101 140 Z" fill="white"/>
-  <path d="M 101 140 C 99 113 109 82 131 62 C 132 86 124 114 117 134 Z" fill="white"/>
-  <path d="M 117 134 C 117 107 128 76 148 58 C 148 82 139 108 131 128 Z" fill="white"/>
-  <path d="M 131 128 C 133 103 143 74 160 58 C 159 80 151 104 143 122 Z" fill="white"/>
-  <path d="M 72 152 C 84 144 96 140 108 136 C 120 132 132 127 144 120 C 156 113 162 107 162 107 C 150 114 138 121 125 126 C 112 131 99 136 86 141 Z" fill="white"/>
+  <circle cx="100" cy="100" r="88" fill="none" stroke="white" stroke-width="10"/>
+  <!-- Pena 1 - mais à esquerda, maior -->
+  <path d="M 68 148 C 58 122 62 90 84 66 C 88 92 84 122 76 144 Z" fill="white"/>
+  <!-- Pena 2 -->
+  <path d="M 82 142 C 76 116 82 84 106 62 C 108 88 102 118 94 138 Z" fill="white"/>
+  <!-- Pena 3 - central -->
+  <path d="M 96 136 C 93 110 102 78 124 58 C 125 84 117 112 109 132 Z" fill="white"/>
+  <!-- Pena 4 -->
+  <path d="M 111 130 C 110 104 121 72 142 54 C 142 80 132 106 124 126 Z" fill="white"/>
+  <!-- Pena 5 - mais à direita, menor -->
+  <path d="M 126 124 C 127 100 138 70 157 54 C 156 78 147 102 139 120 Z" fill="white"/>
+  <!-- Quilha / base conectora suave -->
+  <path d="M 68 148 C 80 140 92 136 104 132 C 116 128 128 123 140 118 C 128 124 116 129 104 133 C 90 138 78 143 68 148 Z" fill="white"/>
 </svg>
     <span class="logo-nm">WINGCELL</span>
   </div>
@@ -579,6 +604,7 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
     <div class="llogo">
       <span class="lnm">WINGCELL</span>
       <span class="lsb">Sua distribuidora de peças na palma da mão</span>
+      <div id="login-social" style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px"></div>
     </div>
     <div class="ltabs">
       <button class="ltab on" id="tc" onclick="swTab('c')"><i class="fa-solid fa-user"></i> Cliente</button>
@@ -680,24 +706,21 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
 </div>
 
 <div class="page" id="pg-contato">
+  <div class="pghdr">
+    <div><h2>Fale <em>Conosco</em></h2><p>Escolha uma loja ou nos encontre nas redes</p></div>
+  </div>
   <div class="cwrap">
-    <h2>Fale <span style="color:var(--red)">Conosco</span></h2>
-    <div class="cilist" id="cilist"></div>
-    <div class="seclbl" style="margin-bottom:10px">Redes Sociais</div>
-    <div class="socrow" id="socrow"></div>
-    <div class="cfcard" style="margin-top:20px">
-      <h3>Enviar Mensagem</h3>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
-        <div class="fg"><label>Nome</label><input type="text" id="cnom" placeholder="Seu nome"></div>
-        <div class="fg"><label>Telefone</label><input type="text" id="ctel" placeholder="(47) 9..."></div>
-      </div>
-      <div class="fg"><label>E-mail</label><input type="email" id="cem" placeholder="seu email"></div>
-      <div class="fg"><label>Assunto</label>
-        <select id="cass"><option value="">Selecione...</option><option>Orçamento</option><option>Dúvida sobre produto</option><option>Problema com pedido</option><option>Quero ser cliente</option><option>Outro</option></select>
-      </div>
-      <div class="fg"><label>Mensagem</label><textarea id="cmsg" rows="4" placeholder="Descreva sua solicitação..."></textarea></div>
-      <button class="btnr" id="bcf" onclick="sendMsg()"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
-      <div class="okban" id="cfok"><i class="fa-solid fa-circle-check"></i> Enviado! Retornaremos em breve.</div>
+    <div style="margin-bottom:20px">
+      <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--t2);margin-bottom:10px"><i class="fa-solid fa-store" style="color:var(--red);margin-right:5px"></i>Nossas Lojas</div>
+      <div id="contact-lojas-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px"></div>
+    </div>
+    <div style="margin-bottom:20px" id="contact-social-wrap">
+      <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--t2);margin-bottom:10px"><i class="fa-solid fa-hashtag" style="color:var(--red);margin-right:5px"></i>Redes Sociais</div>
+      <div id="contact-socials" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+    </div>
+    <div id="contact-links-wrap">
+      <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--t2);margin-bottom:10px"><i class="fa-solid fa-address-book" style="color:var(--red);margin-right:5px"></i>Contatos</div>
+      <div class="cilist" id="cilist"></div>
     </div>
   </div>
 </div>
@@ -870,7 +893,17 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
         <div style="font-family:'Barlow Condensed';font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.09em;color:var(--t2);margin-bottom:10px">Por Categoria</div>
         <div id="dashcats" style="display:flex;flex-wrap:wrap;gap:7px"></div>
         
-        <div style="margin-top:24px;padding:16px;background:var(--bg3);border-radius:10px;border-left:3px solid var(--amb)">
+        <div style="margin-top:24px;background:var(--bg2);border:1px solid var(--b);border-radius:10px;overflow:hidden">
+          <div style="padding:12px 16px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between">
+            <div style="font-family:'Barlow Condensed';font-weight:700;font-size:.88rem;text-transform:uppercase;letter-spacing:.07em"><i class="fa-solid fa-circle" style="color:#4ade80;font-size:.5rem;margin-right:7px"></i>Clientes Online Agora</div>
+            <button onclick="subsOnlineCount()" style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:.8rem"><i class="fa-solid fa-rotate"></i></button>
+          </div>
+          <div id="online-admin-list" style="max-height:200px;overflow-y:auto">
+            <div style="color:var(--t3);font-size:.82rem;padding:14px 16px">Carregando...</div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px;padding:16px;background:var(--bg3);border-radius:10px;border-left:3px solid var(--amb)">
           <div style="font-family:'Barlow Condensed';font-weight:700;font-size:.85rem;text-transform:uppercase;letter-spacing:.07em;color:var(--amb);margin-bottom:12px"><i class="fa-solid fa-lightbulb"></i> Melhorias Sugeridas</div>
           <div style="display:flex;flex-direction:column;gap:8px;font-size:.8rem;color:var(--t2)">
             <div><i class="fa-solid fa-plug" style="color:var(--red);width:16px"></i> <strong>Integração Shop 9</strong> — Sincronizar estoque em tempo real por filial</div>
@@ -906,6 +939,23 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
       <button class="btnr" style="flex:1" onclick="applyFilter()"><i class="fa-solid fa-check"></i> Aplicar</button>
       <button class="btno" style="flex:1" onclick="clrFilter()"><i class="fa-solid fa-rotate-left"></i> Limpar</button>
     </div>
+  </div>
+</div>
+
+<!-- LOJA DETAIL DRAWER -->
+<div class="loja-detail-ov" id="loja-det-ov" onclick="if(event.target===this)clLojaDetail()">
+  <div class="loja-detail-box" id="loja-det-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div>
+        <div style="font-size:.68rem;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px">Loja</div>
+        <div style="font-family:'Barlow Condensed';font-weight:700;font-size:1.2rem" id="loja-det-nome">—</div>
+      </div>
+      <button onclick="clLojaDetail()" style="background:none;border:none;color:var(--t2);cursor:pointer;font-size:1rem"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="loja-det-body"></div>
+    <button id="loja-det-wa" style="width:100%;padding:13px;background:#25d366;border:none;border-radius:10px;color:#fff;font-family:'Barlow Condensed';font-size:1rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px" onclick="opLojaWA()">
+      <i class="fa-brands fa-whatsapp"></i> Abrir WhatsApp
+    </button>
   </div>
 </div>
 
@@ -1298,6 +1348,7 @@ function afterLg(){
   if(subp)subp.textContent=me.desconto>0?"Preços com "+me.desconto+"% de desconto - "+me.nome:"Preços para "+me.nome;
   loadCfg();bldChips();rTbl();rCart();rstSess();
   renderNovidades();
+  if(!me.isAdmin)trackOnline(me);
   go(me.isAdmin?"admin":"precos");
 }
 
@@ -1377,6 +1428,8 @@ function loadCfg(){
       if(d.msgBV)CFG.msgBV=d.msgBV;
       if(d.msgEnt)CFG.msgEnt=d.msgEnt;
       if(d.novidades){NOVIDADES=d.novidades;renderNovidades();}
+    // Show social links on login screen
+    renderLoginSocial();
       if(d.rotas){
         CFG.rotas=d.rotas;
         var eh=document.getElementById("ewarn-hrs");
@@ -1463,6 +1516,29 @@ function setCat(c,el,ctx){
   else{catAC=c;document.querySelectorAll("#chips2 .cf").forEach(function(x){x.classList.remove("on");});}
   el.classList.add("on");
   if(ctx===1)rTbl();else rCat();
+}
+
+// ── LOGIN SOCIAL ICONS ───────────────────────────────────
+function renderLoginSocial(){
+  var el=document.getElementById("login-social");if(!el)return;
+  el.innerHTML="";
+  var socMeta={instagram:{ic:"fa-brands fa-instagram",c:"#e1306c"},
+    facebook:{ic:"fa-brands fa-facebook",c:"#1877f2"},
+    whatsapp:{ic:"fa-brands fa-whatsapp",c:"#25d366"},
+    youtube:{ic:"fa-brands fa-youtube",c:"#ff0000"},
+    tiktok:{ic:"fa-brands fa-tiktok",c:"var(--t)"},
+    linkedin:{ic:"fa-brands fa-linkedin",c:"#0077b5"},
+    twitter:{ic:"fa-brands fa-x-twitter",c:"var(--t)"}};
+  SOCIALS.forEach(function(s){
+    var m=socMeta[s.rede];if(!m||!s.url)return;
+    var a=document.createElement("a");
+    a.href=s.url;a.target="_blank";
+    a.style.cssText="color:"+m.c+";font-size:1.3rem;opacity:.85;transition:opacity .18s";
+    a.innerHTML='<i class="'+m.ic+'"></i>';
+    a.addEventListener("mouseenter",function(){this.style.opacity="1";});
+    a.addEventListener("mouseleave",function(){this.style.opacity=".85";});
+    el.appendChild(a);
+  });
 }
 
 // ── NOVIDADES ─────────────────────────────────────────────
@@ -1715,6 +1791,77 @@ function sendQuote(){
   clQuote();
   toast("Consulta enviada!","ok");
 }
+
+// ── ONLINE PRESENCE ──────────────────────────────────────
+var _onlineTimer=null;
+var _onlineRef=null;
+
+function trackOnline(client){
+  if(!window.FB||!window.FB.FB_OK||!client)return;
+  var data={
+    codigo:client.codigo,
+    nome:client.nome||"Cliente "+client.codigo,
+    ts:Date.now(),
+    pg:document.title
+  };
+  // Save to Firestore online/{codigo}
+  _onlineRef=window.FB.doc(window.FB.db,"online",client.codigo);
+  window.FB.setDoc(_onlineRef,data,{merge:true}).catch(function(){});
+  // Heartbeat every 60s
+  clearInterval(_onlineTimer);
+  _onlineTimer=setInterval(function(){
+    if(!window.FB||!window.FB.FB_OK)return;
+    window.FB.updateDoc(_onlineRef,{ts:Date.now()}).catch(function(){});
+  },60000);
+  // Remove when page closes
+  window.addEventListener("beforeunload",function(){
+    if(_onlineRef)window.FB.deleteDoc(_onlineRef).catch(function(){});
+    clearInterval(_onlineTimer);
+  });
+  // Update online count badge
+  subsOnlineCount();
+}
+
+function subsOnlineCount(){
+  if(!window.FB||!window.FB.FB_OK)return;
+  // Simple approach: get count once per minute
+  function updateCount(){
+    var cutoff=Date.now()-120000; // 2 min window
+    window.FB.getDocs(window.FB.collection(window.FB.db,"online"))
+      .then(function(snap){
+        var active=snap.docs.filter(function(d){return(d.data().ts||0)>cutoff;});
+        var cnt=active.length;
+        // Update topbar badge
+        var badge=document.getElementById("online-badge");
+        if(badge){badge.textContent=cnt;badge.style.display=cnt>0?"flex":"none";}
+        // Admin panel
+        if(window._adminOnlineList)renderOnlineAdmin(active);
+      }).catch(function(){});
+  }
+  updateCount();
+  setInterval(updateCount,60000);
+}
+
+function renderOnlineAdmin(docs){
+  var el=document.getElementById("online-admin-list");if(!el)return;
+  var cutoff=Date.now()-120000;
+  var active=docs.filter(function(d){return(d.data().ts||0)>cutoff;});
+  if(!active.length){
+    el.innerHTML='<div style="color:var(--t3);font-size:.82rem;padding:10px">Nenhum cliente online agora.</div>';
+    return;
+  }
+  el.innerHTML=active.map(function(d){
+    var dat=d.data();
+    var mins=Math.round((Date.now()-(dat.ts||0))/60000);
+    return'<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--b)">'+
+      '<div style="width:8px;height:8px;border-radius:50%;background:#4ade80;flex-shrink:0"></div>'+
+      '<div style="flex:1"><div style="font-weight:700;font-size:.82rem">'+dat.codigo+' — '+(dat.nome||"")+'</div>'+
+      '<div style="font-size:.7rem;color:var(--t2)">Ativo há '+(mins===0?"menos de 1 min":mins+" min")+'</div></div>'+
+      '</div>';
+  }).join("");
+}
+
+window._adminOnlineList=false;
 
 // ── HISTORY SYSTEM ────────────────────────────────────────
 var HIST_KEY="wc_hist";
@@ -2279,7 +2426,8 @@ function rCat(){
     }
     var bd=document.createElement("div");bd.className="cpbd";
     var nm=document.createElement("div");nm.className="cpnm";nm.textContent=p.produto;
-    if(p.novidade){var nv2=document.createElement("span");nv2.style.cssText="display:inline-block;margin-top:2px;padding:1px 5px;background:rgba(22,163,74,.15);color:var(--grn);border-radius:3px;font-size:.6rem;font-weight:700;letter-spacing:.05em;border:1px solid rgba(22,163,74,.25)";nv2.textContent="NOVO";nm.appendChild(nv2);}
+    var isNovo=p._status==="novo"||p.novidade;
+    if(isNovo){var nv2=document.createElement("span");nv2.style.cssText="display:block;margin-top:3px;padding:2px 6px;background:var(--grn);color:#fff;border-radius:4px;font-size:.58rem;font-weight:800;letter-spacing:.07em;width:fit-content";nv2.textContent="✦ NOVO";nm.appendChild(nv2);}
     bd.appendChild(nm);
     var pr=document.createElement("div");pr.className="cppr"+(av?"":" g");pr.textContent=av?fmtP(pf):"Em Falta";bd.appendChild(pr);
     d.appendChild(bd);grid.appendChild(d);
@@ -2287,7 +2435,102 @@ function rCat(){
 }
 
 // ── CONTACT PAGE ──────────────────────────────────────────
+var _lojaDetailCurrent=null;
+function opLojaDetail(l){
+  _lojaDetailCurrent=l;
+  var nm=document.getElementById("loja-det-nome");if(nm)nm.textContent=l.nome;
+  var body=document.getElementById("loja-det-body");
+  if(body){
+    body.innerHTML=
+      '<div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--b)">'+
+      '<i class="fa-brands fa-whatsapp" style="color:#25d366;font-size:1.1rem;width:22px;text-align:center"></i>'+
+      '<div><div style="font-size:.72rem;color:var(--t2)">WhatsApp</div>'+
+      '<div style="font-weight:600;font-size:.85rem">'+l.whatsapp+'</div></div></div>'+
+      (l.ativo
+        ?'<div style="display:flex;align-items:center;gap:7px;margin-top:10px;padding:7px 10px;background:rgba(22,163,74,.08);border-radius:8px"><div style="width:8px;height:8px;border-radius:50%;background:#4ade80"></div><span style="font-size:.78rem;color:var(--grn)">Loja ativa</span></div>'
+        :'<div style="display:flex;align-items:center;gap:7px;margin-top:10px;padding:7px 10px;background:var(--bg3);border-radius:8px"><div style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div><span style="font-size:.78rem;color:var(--t3)">Loja inativa</span></div>');
+  }
+  var ov=document.getElementById("loja-det-ov");
+  var box=document.getElementById("loja-det-box");
+  if(ov)ov.classList.add("on");
+  setTimeout(function(){if(box)box.classList.add("on");},10);
+}
+function clLojaDetail(){
+  var ov=document.getElementById("loja-det-ov");
+  var box=document.getElementById("loja-det-box");
+  if(box)box.classList.remove("on");
+  setTimeout(function(){if(ov)ov.classList.remove("on");},280);
+}
+function opLojaWA(){
+  if(!_lojaDetailCurrent)return;
+  var cod=me?me.codigo:"?";
+  var msg=(CFG.msgBV||"Olá! Meu código é {CODIGO}.").replace("{CODIGO}",cod).replace("{TIPO}","cotação");
+  var url="https://wa.me/"+fmtWA(_lojaDetailCurrent.whatsapp)+"?text="+encodeURIComponent(msg);
+  var win=window.open(url,"_blank");
+  if(!win)window.location.href=url;
+  clLojaDetail();
+}
+
 function rContact(){
+  var lojaIcons=["fa-solid fa-store","fa-solid fa-shop","fa-solid fa-building","fa-solid fa-house","fa-solid fa-warehouse","fa-solid fa-city"];
+  var lg=document.getElementById("contact-lojas-grid");
+  if(lg){
+    lg.innerHTML="";
+    LOJAS.filter(function(l){return l.ativo;}).forEach(function(l,i){
+      var card=document.createElement("div");card.className="loja-contact-card";
+      (function(lj){card.addEventListener("click",function(){opLojaDetail(lj);});})(l);
+      var ico=document.createElement("div");ico.className="loja-contact-icon";
+      ico.innerHTML='<i class="'+(lojaIcons[i%lojaIcons.length])+'"></i>';
+      var nm=document.createElement("div");nm.className="loja-contact-name";nm.textContent=l.nome;
+      var st=document.createElement("div");st.className="loja-contact-status";
+      st.innerHTML='<i class="fa-solid fa-circle" style="font-size:.35rem"></i> Disponível';
+      card.appendChild(ico);card.appendChild(nm);card.appendChild(st);
+      lg.appendChild(card);
+    });
+  }
+  var socDiv=document.getElementById("contact-socials");
+  if(socDiv){
+    socDiv.innerHTML="";
+    var socColors={instagram:"#e1306c",facebook:"#1877f2",whatsapp:"#25d366",youtube:"#ff0000",tiktok:"#000",linkedin:"#0077b5",twitter:"#1da1f2"};
+    SOCIALS.forEach(function(s){
+      var m=SOC_META[s.rede]||{ic:"fa-solid fa-link",c:"#888",lb:s.rede};
+      var clr=socColors[s.rede]||"#888";
+      var a=document.createElement("a");a.className="soc-card";a.href=s.url||"#";a.target="_blank";
+      a.style.color=clr;
+      var ico=document.createElement("div");ico.className="soc-card-ic";
+      ico.style.cssText="background:"+clr+"18;color:"+clr;
+      ico.innerHTML='<i class="'+m.ic+'"></i>';
+      var inf=document.createElement("div");inf.className="soc-card-info";
+      var nm2=document.createElement("div");nm2.className="soc-card-name";nm2.textContent=m.lb||s.rede;
+      var hnd=document.createElement("div");hnd.className="soc-card-handle";
+      hnd.textContent=s.url.replace(/https?:\/\/(www\.)?/,"").split("/")[0];
+      inf.appendChild(nm2);inf.appendChild(hnd);
+      a.appendChild(ico);a.appendChild(inf);socDiv.appendChild(a);
+    });
+    var wrap=document.getElementById("contact-social-wrap");
+    if(wrap)wrap.style.display=SOCIALS.length?"":"none";
+  }
+  var cl=document.getElementById("cilist");
+  if(cl){
+    cl.innerHTML="";
+    CI_LINKS.forEach(function(l){
+      var hrefVal=l.valor||"";
+      var href=l.tipo==="email"?"mailto:"+hrefVal:l.tipo==="phone"?"https://wa.me/"+fmtWA(hrefVal):hrefVal||"#";
+      var a=document.createElement("a");a.className="ciit";a.href=href;a.target="_blank";
+      var CI_IC2={phone:"fa-brands fa-whatsapp",email:"fa-solid fa-envelope",instagram:"fa-brands fa-instagram",facebook:"fa-brands fa-facebook",website:"fa-solid fa-globe",whatsapp:"fa-brands fa-whatsapp"};
+      var ic=document.createElement("div");ic.className="ciic";
+      ic.innerHTML='<i class="'+(CI_IC2[l.tipo]||"fa-solid fa-link")+'"></i>';
+      var inf=document.createElement("div");inf.className="ciinf";
+      var lb=document.createElement("div");lb.className="cilb";lb.textContent=l.rotulo;
+      var vl=document.createElement("div");vl.className="civl";vl.textContent=l.valor;
+      inf.appendChild(lb);inf.appendChild(vl);
+      var arr=document.createElement("i");arr.className="fa-solid fa-arrow-right ciarr";
+      a.appendChild(ic);a.appendChild(inf);a.appendChild(arr);cl.appendChild(a);
+    });
+    var clwrap=document.getElementById("contact-links-wrap");
+    if(clwrap)clwrap.style.display=CI_LINKS.length?"":"none";
+  }
+}
   var cl=document.getElementById("cilist");
   if(cl){
     cl.innerHTML="";
@@ -3312,6 +3555,7 @@ window.addEventListener("fb-ready",function(){
             meAdm=Object.assign({uid:user.uid},s.data());
             me={codigo:"ADMIN",nome:meAdm.nome,isAdmin:true,desconto:0};
             afterLg();
+            setTimeout(function(){window._adminOnlineList=true;subsOnlineCount();},1500);
           }
         }).catch(function(){});
     }
@@ -3407,7 +3651,7 @@ document.addEventListener("DOMContentLoaded",function(){
 rCart();
 </script>
 <div id="version-footer" style="position:fixed;bottom:5px;right:10px;font-size:.6rem;color:var(--t3);z-index:1;pointer-events:none;font-family:Barlow;letter-spacing:.04em;opacity:.5">
-  WingCell v1.5.0
+  WingCell v1.6.0
 </div>
 </body>
 </html>
