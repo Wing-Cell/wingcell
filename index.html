@@ -199,7 +199,7 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
 .crdel:hover{color:#ef4444}
 .crempty{text-align:center;padding:36px 19px;color:var(--t3);font-size:.86rem}
 .crempty i{font-size:1.9rem;display:block;margin-bottom:9px}
-.crft{padding:14px 18px 20px;border-top:2px solid var(--b);background:var(--bg2);flex-shrink:0;overflow-y:auto;max-height:55vh}
+.crft{padding:12px 18px 16px;border-top:2px solid var(--b);background:var(--bg2);flex-shrink:0;overflow-y:auto}
 .crtotrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}
 .crtotrow .l{font-size:.83rem;color:var(--t2)}
 .crtotrow .v{font-family:"Bebas Neue";font-size:1.35rem;letter-spacing:.04em;color:var(--red)}
@@ -605,6 +605,24 @@ body{font-family:Barlow,sans-serif;background:var(--bg);color:var(--t);min-heigh
 </header>
 
 <div class="page on" id="pg-login">
+  <!-- CONFIRM USER MODAL -->
+  <div class="confirm-ov" id="confirm-ov" style="display:none">
+    <div class="confirm-box">
+      <div class="confirm-avatar" id="confirm-avatar">?</div>
+      <div class="confirm-question">Você realmente é</div>
+      <div class="confirm-name" id="confirm-name">—</div>
+      <div class="confirm-sub">Código: <span id="confirm-cod">—</span></div>
+      <div class="confirm-btns">
+        <button class="btnr" onclick="confirmYes()" style="padding:12px">
+          <i class="fa-solid fa-check"></i> Sim, sou eu!
+        </button>
+        <button class="btno" onclick="confirmNo()" style="padding:12px">
+          <i class="fa-solid fa-xmark"></i> Não sou
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div class="lgtop">
     <div class="srvrow">
       <div class="srvdot" id="srvdot"></div>
@@ -1131,6 +1149,36 @@ var rawRows=[], colMap={};
 var sessTimer=null;
 var _pmProd=null;
 
+// ── CONFIRM USER ──────────────────────────────────────────
+var _confirmCb=null;
+function showConfirmUser(cod,nome,cb){
+  _confirmCb=cb;
+  var ov=document.getElementById("confirm-ov");
+  var av=document.getElementById("confirm-avatar");
+  var nm=document.getElementById("confirm-name");
+  var cd=document.getElementById("confirm-cod");
+  if(av)av.textContent=nome?nome.charAt(0).toUpperCase():"?";
+  if(nm)nm.textContent=nome||"Cliente "+cod;
+  if(cd)cd.textContent=cod;
+  if(ov)ov.style.display="flex";
+}
+function confirmYes(){
+  var ov=document.getElementById("confirm-ov");
+  if(ov)ov.style.display="none";
+  if(_confirmCb){_confirmCb();_confirmCb=null;}
+}
+function confirmNo(){
+  var ov=document.getElementById("confirm-ov");
+  if(ov)ov.style.display="none";
+  _confirmCb=null;
+  // Clear remembered code
+  var cod=me?me.codigo:"";
+  if(cod)localStorage.removeItem("wc_confirmed_"+cod);
+  me=null;
+  // Show error suggesting wrong code
+  showErr("Código incorreto? Verifique com seu consultor.");
+}
+
 // ── SESSION TIMEOUT ──────────────────────────────────────
 function rstSess(){
   clearTimeout(sessTimer);
@@ -1256,17 +1304,25 @@ function opModLojas(){
 
 // ── CLIENT LOGIN ──────────────────────────────────────────
 function doLg(){
-  var cod=document.getElementById("icod").value.trim().toUpperCase();
+  var rawCod=document.getElementById("icod").value.trim().replace(/[^0-9]/g,"");
   var sen=document.getElementById("isen").value;
   hideErr();
-  if(!cod){showErr("Digite seu código de cliente.");return;}
+  if(!rawCod){showErr("Digite seu código de cliente.");return;}
+  // Pad to 4 digits: "139" → "0139"
+  var cod=rawCod.padStart(4,"0");
   var btn=document.getElementById("blg");
   btn.disabled=true;
   btn.innerHTML='<div class="spin"></div> Verificando...';
   function gotCli(c){
     btn.disabled=false;
     btn.innerHTML='<i class="fa-solid fa-unlock"></i> Acessar Portal';
-    if(!c){showErr("Código invalido. Verifique com seu consultor.");return;}
+    if(!c){
+      // Try without padding if padded didn't work
+      if(cod!==rawCod){
+        tryLogin(rawCod);return;
+      }
+      showErr("Código inválido. Verifique com seu consultor.");return;
+    }
     if(c.status==="blocked"){showErr("Acesso bloqueado. Contate o suporte.");return;}
     if(c.senha){
       document.getElementById("swrap").style.display="";
@@ -1278,7 +1334,16 @@ function doLg(){
     var chk=document.getElementById("chk-remember");
     if(chk&&chk.checked)localStorage.setItem("wc_remember_cod",cod);
     else localStorage.removeItem("wc_remember_cod");
-    afterLg();
+    // First time confirmation
+    var confirmKey="wc_confirmed_"+cod;
+    if(!localStorage.getItem(confirmKey)){
+      showConfirmUser(cod,c.nome||"",function(){
+        localStorage.setItem(confirmKey,"1");
+        afterLg();
+      });
+    }else{
+      afterLg();
+    }
   }
   if(window.FB&&window.FB.FB_OK){
     window.FB.getDoc(window.FB.doc(window.FB.db,"clientes",cod))
@@ -2700,22 +2765,6 @@ function rContact(){
     if(clwrap)clwrap.style.display=CI_LINKS.length?"":"none";
   }
 }
-  var cl=document.getElementById("cilist");
-  if(cl){
-    cl.innerHTML="";
-    CI_LINKS.forEach(function(l){
-      var hrefVal=l.valor||"";
-      var href=l.tipo==="email"?"mailto:"+hrefVal:l.tipo==="phone"?"https://wa.me/"+fmtWA(hrefVal):hrefVal||"#";
-      var a=document.createElement("a");a.className="ciit";a.href=href;a.target="_blank";
-      var ic=document.createElement("div");ic.className="ciic";ic.innerHTML='<i class="'+(CI_IC[l.tipo]||"fa-solid fa-link")+'"></i>';
-      var info=document.createElement("div");
-      var lb=document.createElement("div");lb.className="cilb";lb.textContent=l.rotulo;
-      var vl=document.createElement("div");vl.className="civl";vl.textContent=l.valor;
-      info.appendChild(lb);info.appendChild(vl);
-      a.appendChild(ic);a.appendChild(info);
-      cl.appendChild(a);
-    });
-  }
 function sendMsg(){
   var nm=document.getElementById("cnom").value.trim();
   var em=document.getElementById("cem").value.trim();
