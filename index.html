@@ -1518,16 +1518,26 @@ function showMobileNav(show){
 
 function go(id){
   if(!me&&id!=="login")return;
-  document.querySelectorAll(".page").forEach(function(p){p.classList.remove("on");});
+  // Hide ALL pages with both class and inline style (belt + suspenders)
+  var allPages=document.querySelectorAll(".page");
+  allPages.forEach(function(p){
+    p.classList.remove("on");
+    p.style.display="none";
+  });
   document.querySelectorAll(".nb").forEach(function(b){b.classList.remove("on");});
-  var pg=document.getElementById("pg-"+id);if(pg)pg.classList.add("on");
+  // Show only target page
+  var pg=document.getElementById("pg-"+id);
+  if(pg){
+    pg.classList.add("on");
+    pg.style.display=""; // remove inline style, let CSS take over
+  }
   var nb=document.getElementById("nb-"+id);if(nb)nb.classList.add("on");
   // Show/hide topbar
   var tb=document.getElementById("tb");
   if(tb)tb.style.display=id==="login"?"none":"";
   // Show/hide mobile nav
   var mnav=document.getElementById("mobile-nav");
-  if(mnav&&id==="login")mnav.style.display="none";
+  if(mnav)mnav.style.display=(id==="login"||(id!=="precos"&&id!=="catalogo"&&id!=="historico"&&id!=="contato"))?"none":"";
   if(id==="catalogo"){bldChips2();rCat();}
   if(id==="contato")rContact();
   if(id==="historico")rHist();
@@ -3882,7 +3892,16 @@ document.addEventListener("DOMContentLoaded",function(){
   });
 });
 
-// Init
+// Init: ensure all pages except login are hidden
+(function(){
+  var pages=document.querySelectorAll(".page");
+  pages.forEach(function(p){
+    if(p.id!=="pg-login"){
+      p.style.display="none";
+      p.classList.remove("on");
+    }
+  });
+})();
 rCart();
 </script>
 <div id="version-footer" style="position:fixed;bottom:5px;right:10px;font-size:.6rem;color:var(--t3);z-index:1;pointer-events:none;font-family:Barlow;letter-spacing:.04em;opacity:.5">
